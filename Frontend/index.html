@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Onboarding Form</title>
+    <style>
+        /* Font and Base Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+        
+        :root {
+          --primary: #4361ee;
+          --primary-dark: #3a56d4;
+          --secondary: #3f37c9;
+          --accent: #4895ef;
+          --light: #f8f9fa;
+          --dark: #212529;
+          --gray: #585f65;
+          --light-gray: #e9ecef;
+          --success: #4bb543;
+          --error: #ff3333;
+          --border-radius: 12px;
+          --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+          --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        
+        body {
+          font-family: 'Poppins', sans-serif;
+          line-height: 1.6;
+          padding: 0;
+          margin: 0;
+        }
+        
+        /* Header Styles */
+        header {
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          color: white;
+          padding: 2.5rem 1rem;
+          text-align: center;
+          margin-bottom: 2.5rem;
+          box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        header h1 {
+          font-size: 2.5rem;
+          margin-bottom: 0.75rem;
+          font-weight: 700;
+        }
+        
+        .header-quote {
+          font-style: italic;
+          opacity: 0.9;
+          font-size: 1.1rem;
+          font-weight: 300;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        
+        /* Main Form Container */
+        .form-container {
+          max-width: 1400px;
+          margin: 0 auto 3rem;
+          padding: 0 1.5rem;
+        }
+        
+        /* Form Grid Layout - Two Columns */
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.8rem;
+          margin-bottom: 2rem;
+        }
+        
+        /* Fieldset Styling */
+        fieldset {
+          border: none;
+          background: white;
+          border-radius: var(--border-radius);
+          padding: 2rem 1.8rem;
+          box-shadow: var(--box-shadow);
+          transition: var(--transition);
+          position: relative;
+          overflow: hidden;
+          height: 100%;
+        }
+        
+        fieldset:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        fieldset::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 4px;
+          height: 100%;
+          background: linear-gradient(to bottom, var(--primary), var(--accent));
+        }
+        
+        /* Legend with Icons */
+        legend {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: var(--primary);
+          padding: 0 0 0 2.5rem;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          width: 100%;
+          position: relative;
+        }
+        
+        legend::before {
+          font-family: "Font Awesome 6 Free";
+          font-weight: 900;
+          position: absolute;
+          left: 0;
+          font-size: 1.4rem;
+          color: var(--primary);
+        }
+        
+        /* Icons for each fieldset */
+        fieldset:nth-child(1) legend::before { content: "\f2bb"; } /* Personal Info */
+        fieldset:nth-child(2) legend::before { content: "\f3c5"; } /* Address */
+        fieldset:nth-child(3) legend::before { content: "\f19c"; } /* Banking */
+        fieldset:nth-child(4) legend::before { content: "\f19d"; } /* Education */
+        fieldset:nth-child(5) legend::before { content: "\f0e0"; } /* Emergency */
+        fieldset:nth-child(6) legend::before { content: "\f0f2"; } /* Job Details */
+        
+        /* Form Group Styling */
+        .form-group {
+          margin-bottom: 1.5rem;
+          position: relative;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 0.6rem;
+          font-weight: 500;
+          color: #495057;
+          font-size: 0.95rem;
+        }
+        
+        .form-control {
+          width: 100%;
+          padding: 0.85rem 1.2rem;
+          font-size: 1rem;
+          border: 1px solid #e0e0e0;
+          border-radius: var(--border-radius);
+          transition: var(--transition);
+          background-color: #fff;
+          font-family: 'Poppins', sans-serif;
+        }
+        
+        .form-control:focus {
+          outline: none;
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.2);
+        }
+        
+        /* File Input Styling */
+        .file-input-container {
+          position: relative;
+          border: 1px dashed #ced4da;
+          border-radius: var(--border-radius);
+          padding: 1.5rem;
+          text-align: center;
+          transition: var(--transition);
+        }
+        
+        .file-input-container:hover {
+          border-color: var(--accent);
+          background-color: rgba(72, 149, 239, 0.05);
+        }
+        
+        .file-input-container input[type="file"] {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+          cursor: pointer;
+        }
+        
+        .file-input-label {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          color: var(--gray);
+        }
+        
+        .file-input-label i {
+          font-size: 1.8rem;
+          margin-bottom: 0.5rem;
+          color: var(--primary);
+        }
+        
+        /* Error Message Styling */
+        .error-message {
+          color: var(--error);
+          font-size: 0.85rem;
+          margin-top: 0.4rem;
+          display: block;
+          min-height: 1.2rem;
+        }
+        
+        small {
+          display: block;
+          font-size: 0.8rem;
+          color: var(--gray);
+          margin-top: 0.4rem;
+          line-height: 1.4;
+        }
+        
+        /* Form Actions Styling */
+        .form-actions {
+          grid-column: 1 / -1;
+          background: white;
+          padding: 1.5rem 2rem;
+          border-radius: var(--border-radius);
+          box-shadow: var(--box-shadow);
+          margin-top: 1.5rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          border-top: 3px solid var(--primary);
+        }
+        
+        .declaration-row {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          width: 100%;
+        }
+        
+        .declaration-row input[type="checkbox"] {
+          min-width: 20px;
+          min-height: 20px;
+          accent-color: var(--primary);
+          cursor: pointer;
+          margin: 0;
+        }
+        
+        .declaration-row label {
+          font-size: 0.95rem;
+          color: var(--dark);
+          cursor: pointer;
+          user-select: none;
+          font-weight: 500;
+          margin: 0;
+        }
+        
+        .button-row {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          width: 100%;
+        }
+        
+        /* Button Styling */
+        .btn {
+          padding: 0.85rem 2rem;
+          font-size: 1rem;
+          font-weight: 600;
+          border: none;
+          border-radius: var(--border-radius);
+          cursor: pointer;
+          transition: var(--transition);
+        }
+        
+        .btn[type="submit"] {
+          background-color: var(--primary);
+          color: white;
+          box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn[type="submit"]:hover {
+          background-color: var(--primary-dark);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-reset {
+          background-color: white;
+          color: var(--gray);
+          border: 1px solid var(--light-gray);
+          font-weight: 500;
+        }
+        
+        .btn-reset:hover {
+          background-color: #f8f9fa;
+          color: var(--dark);
+          border-color: var(--gray);
+          transform: translateY(-2px);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 1200px) {
+          .form-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          fieldset {
+            height: auto;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          header h1 {
+            font-size: 2rem;
+          }
+          
+          .header-quote {
+            font-size: 1rem;
+          }
+          
+          .form-actions {
+            flex-direction: column;
+            padding: 1.2rem;
+            gap: 1rem;
+          }
+          
+          .button-row {
+            flex-direction: column;
+            gap: 0.8rem;
+          }
+          
+          .btn {
+            width: 100%;
+          }
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        fieldset {
+          animation: fadeInUp 0.6s ease-out forwards;
+          opacity: 0;
+        }
+        
+        fieldset:nth-child(1) { animation-delay: 0.1s; }
+        fieldset:nth-child(2) { animation-delay: 0.2s; }
+        fieldset:nth-child(3) { animation-delay: 0.3s; }
+        fieldset:nth-child(4) { animation-delay: 0.4s; }
+        fieldset:nth-child(5) { animation-delay: 0.5s; }
+        fieldset:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Loading State for Submit Button */
+        .btn.loading {
+          position: relative;
+          pointer-events: none;
+          color: transparent;
+        }
+        
+        .btn.loading::after {
+          content: "";
+          position: absolute;
+          width: 20px;
+          height: 20px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border: 3px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: button-loading-spinner 1s linear infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+          from { transform: translate(-50%, -50%) rotate(0turn); }
+          to { transform: translate(-50%, -50%) rotate(1turn); }
+        }
+        
+        /* Required Field Asterisks */
+        .form-group label[for]:has(+ input[required]),
+        .form-group label[for]:has(+ select[required]),
+        .form-group label[for]:has(+ textarea[required]) {
+          position: relative;
+        }
+        
+        .form-group label[for]:has(+ input[required])::after,
+        .form-group label[for]:has(+ select[required])::after,
+        .form-group label[for]:has(+ textarea[required])::after {
+          content: "*";
+          color: var(--error);
+          margin-left: 4px;
+          font-size: 1.1em;
+          vertical-align: top;
+        }
+        
+        .form-group label[for]:has(+ .form-control-file[required])::after {
+          content: "*";
+          color: var(--error);
+          margin-left: 4px;
+          font-size: 1.1em;
+          vertical-align: top;
+        }
+        
+        .declaration-row label[for="declaration"]::after {
+          content: "*";
+          color: var(--error);
+          margin-left: 4px;
+          font-size: 1.1em;
+          vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Employee Onboarding Form</h1>
+        <div class="header-quote">"Great onboarding is the foundation for employee success and retention"</div>
+    </header>
+    
+    <div class="form-container">
+        <form id="onboardingForm" enctype="multipart/form-data" novalidate>
+            <div class="form-grid">
+                <fieldset>
+                    <legend>Personal Information</legend>
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" class="form-control" required
+                            pattern="^[A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)*$"
+                            title="Name must start with capital letters and contain only letters and single spaces"
+                            maxlength="50" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="fullName-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="empId">Employee ID</label>
+                        <input type="text" id="empId" name="empId" class="form-control" required maxlength="7"
+                            pattern="^ATS0(?!000)\d{3}$" title="Employee ID must start with ATS followed by 4 digits (e.g., ATS0987)"
+                            oninput="this.value = this.value.toUpperCase()">
+                        <span class="error-message" id="empId-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-control" required
+                            pattern="^[a-zA-Z0-9]{3,}([._-]?[a-zA-Z0-9]+)*@[a-zA-Z]+([.-]?[a-zA-Z]+)*\.(com|org|net|edu|gov|co\.[a-z]{2}|[a-z]{2,3})$"
+                            title="Please enter a valid email address (e.g., user@example.com)" maxlength="100" oninput="trimSpaces(this)">
+                        <span class="error-message" id="email-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" class="form-control" required
+                            pattern="^(?!0{10})(?!.*(\d)\1{4})[6-9][0-9]{9}$"
+                            title="Phone number must start with 6, 7, 8, or 9, be 10 digits long, cannot be all zeros, and cannot have 5+ repeated digits"
+                            maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="phone-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" class="form-control" required min="1950-01-01" max="2005-12-31"
+                            onchange="validateDOB(this)" oninput="validateDOB(this)">
+                        <span class="error-message" id="dob-error"></span>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Address</legend>
+                    <div class="form-group">
+                        <label for="streetAddress">Street Address</label>
+                        <input type="text" id="streetAddress" name="streetAddress" class="form-control" required
+                            pattern="^(?=.*[a-zA-Z])[a-zA-Z0-9\s#.,-]+$"
+                            title="Must contain letters and can include numbers, spaces, #, ., -" maxlength="100" minlength="5"
+                            oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="streetAddress-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" class="form-control" required
+                            pattern="^[A-Za-z]+(?: [A-Za-z]+)*$" title="Only letters with single spaces between words"
+                            maxlength="50" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="city-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" class="form-control" required
+                            pattern="^[A-Za-z]+(?: [A-Za-z]+)*$" title="Only letters with single spaces between words"
+                            maxlength="50" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="state-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="zipCode">Zip Code</label>
+                        <input type="text" id="zipCode" name="zipCode" class="form-control" required
+                            pattern="^(?!0+$)\d{6}$" title="Zip code must be 6 digits and cannot be all zeros" maxlength="6"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="zipCode-error"></span>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Banking Details</legend>
+                    <div class="form-group">
+                        <label for="bankName">Bank Name</label>
+                        <input type="text" id="bankName" name="bankName" class="form-control" required
+                            pattern="^[A-Za-z\s]+$" title="Bank name must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="bankName-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobileNumber">Mobile Number</label>
+                        <input type="tel" id="mobileNumber" name="mobileNumber" class="form-control" required
+                            pattern="^(?!0{10})(?!.*(\d)\1{4})[6-9][0-9]{9}$"
+                            title="Phone number must start with 6, 7, 8, or 9, be 10 digits long, cannot be all zeros, and cannot have 5+ repeated digits"
+                            maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="mobileNumber-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="accountNumber">Account Number</label>
+                        <input type="text" id="accountNumber" name="accountNumber" class="form-control" required
+                            pattern="^[0-9]{8,20}$" title="Account number must be 8-20 digits" maxlength="20"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="accountNumber-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmAccountNumber">Confirm Account Number</label>
+                        <input type="text" id="confirmAccountNumber" name="confirmAccountNumber" class="form-control" required
+                            pattern="^[0-9]{8,20}$" title="Account number must be 8-20 digits" maxlength="20"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="confirmAccountNumber-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="ifscNumber">IFSC Number</label>
+                        <input type="text" id="ifscNumber" name="ifscNumber" class="form-control" required
+                            pattern="^[A-Z]{4}0[A-Z0-9]{6}$" title="IFSC must be 11 characters: 4 letters, 0, then 6 alphanumeric (e.g., SBIN0001234)"
+                            maxlength="11" oninput="this.value = this.value.toUpperCase()">
+                        <span class="error-message" id="ifscNumber-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <legend>Experience</legend>
+                        <label for="prevCompanyName">Previous Company Name</label>
+                        <input type="text" id="prevCompanyName" name="prevCompanyName" class="form-control"
+                            pattern="^[A-Za-z\s]+$" title="Company name must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="prevCompanyName-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="prevJobRole">Previous Job Role</label>
+                        <input type="text" id="prevJobRole" name="prevJobRole" class="form-control"
+                            pattern="^[A-Za-z\s]+$" title="Job role must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="prevJobRole-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="prevEmploymentStart">Start Date</label>
+                        <input type="date" id="prevEmploymentStart" name="prevEmploymentStart" class="form-control" max="2025-12-31">
+                        <span class="error-message" id="prevEmploymentStart-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="prevEmploymentEnd">End Date</label>
+                        <input type="date" id="prevEmploymentEnd" name="prevEmploymentEnd" class="form-control" max="2025-12-31"
+                            oninput="validateEmploymentDates()">
+                        <span class="error-message" id="prevEmploymentEnd-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="experienceLetter">Upload Experience Letter</label>
+                        <input type="file" id="experienceLetter" name="experienceLetter" class="form-control form-control-file"
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <span class="error-message" id="experienceLetter-error"></span>
+                        <small>Allowed formats: PDF, JPG, PNG, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Education Details</legend>
+                    <div class="form-group">
+                        <label for="sscInstitution">SSC Institution</label>
+                        <input type="text" id="sscInstitution" name="sscInstitution" class="form-control" required
+                            maxlength="200" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="sscInstitution-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sscYear">SSC Year of Completion</label>
+                        <input type="number" id="sscYear" name="sscYear" class="form-control" required min="1900" max="2026"
+                            oninput="if(this.value.length > 4) this.value = this.value.slice(0,4); validateEducationYear('sscYear')">
+                        <span class="error-message" id="sscYear-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sscCertificate">Upload SSC Certificate</label>
+                        <input type="file" id="sscCertificate" name="sscCertificate" class="form-control form-control-file" required
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <span class="error-message" id="sscCertificate-error"></span>
+                        <small>Allowed formats: PDF, JPG, PNG, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="interInstitution">Intermediate Institution</label>
+                        <input type="text" id="interInstitution" name="interInstitution" class="form-control" required
+                            maxlength="200" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="interInstitution-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="interYear">Intermediate Year of Completion</label>
+                        <input type="number" id="interYear" name="interYear" class="form-control" required min="1900" max="2026"
+                            oninput="if(this.value.length > 4) this.value = this.value.slice(0,4); validateEducationYear('interYear')">
+                        <span class="error-message" id="interYear-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="interCertificate">Upload Intermediate Certificate</label>
+                        <input type="file" id="interCertificate" name="interCertificate" class="form-control form-control-file" required
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <span class="error-message" id="interCertificate-error"></span>
+                        <small>Allowed formats: PDF, JPG, PNG, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="degree">Highest Degree</label>
+                        <input type="text" id="degree" name="degree" class="form-control" required
+                            pattern="^[A-Za-z\s]+$" title="Degree must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="degree-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="institution">Institution</label>
+                        <input type="text" id="institution" name="institution" class="form-control" required
+                            maxlength="200" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="institution-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="graduationYear">Year of Graduation</label>
+                        <input type="number" id="graduationYear" name="graduationYear" class="form-control" required min="1900" max="2026"
+                            oninput="if(this.value.length > 4) this.value = this.value.slice(0,4); validateEducationYear('graduationYear')">
+                        <span class="error-message" id="graduationYear-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="degreeCertificate">Upload Degree Certificate</label>
+                        <input type="file" id="degreeCertificate" name="degreeCertificate" class="form-control form-control-file" required
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                        <span class="error-message" id="degreeCertificate-error"></span>
+                        <small>Allowed formats: PDF, JPG, PNG, DOC, DOCX (Max 5MB)</small>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Emergency Contact Details</legend>
+                    <div class="form-group">
+                        <label for="emergencyContactName">Contact Name</label>
+                        <input type="text" id="emergencyContactName" name="emergencyContactName" class="form-control" required
+                            pattern="^[A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)*$"
+                            title="Name must start with capital letters and contain only letters and single spaces"
+                            maxlength="50" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="emergencyContactName-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyContactRelationship">Relationship</label>
+                        <input type="text" id="emergencyContactRelationship" name="emergencyContactRelationship" class="form-control" required
+                            pattern="^[A-Za-z\s]+$" title="Relationship must contain only letters and spaces"
+                            maxlength="50" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="emergencyContactRelationship-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyContactPhone">Contact Phone Number</label>
+                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" class="form-control" required
+                            pattern="^(?!0{10})(?!.*(\d)\1{4})[6-9][0-9]{9}$"
+                            title="Phone number must start with 6, 7, 8, or 9, be 10 digits long, cannot be all zeros, and cannot have 5+ repeated digits"
+                            maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <span class="error-message" id="emergencyContactPhone-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="emergencyContactAddress">Contact Address</label>
+                        <input type="text" id="emergencyContactAddress" name="emergencyContactAddress" class="form-control" required
+                            pattern="^(?=.*[a-zA-Z])[a-zA-Z0-9\s#.,-]+$"
+                            title="Must contain letters and can include numbers, spaces, #, ., -" maxlength="100" minlength="5"
+                            oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="emergencyContactAddress-error"></span>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Job Details</legend>
+                    <div class="form-group">
+                        <label for="jobRole">Job Role</label>
+                        <input type="text" id="jobRole" name="jobRole" class="form-control" required
+                            pattern="^[A-Za-z\s]+$" title="Job role must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="jobRole-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobStartDate">Start Date</label>
+                        <input type="date" id="jobStartDate" name="jobStartDate" class="form-control" required
+                            onfocus="document.getElementById('jobStartDate-error').textContent = ''">
+                        <span class="error-message" id="jobStartDate-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" class="form-control" required
+                            pattern="^[A-Za-z\s]+$" title="Department must contain only letters and spaces"
+                            maxlength="100" minlength="2" oninput="enforceSingleSpace(this)" onblur="trimSpaces(this)">
+                        <span class="error-message" id="department-error"></span>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="form-actions">
+                <div class="group" style="display: flex; flex-direction: row; gap: 50px;">
+                    <div class="form-group">
+                        <label for="profilePic">Upload Profile Picture</label>
+                        <input type="file" id="profilePic" name="profilePic" class="form-control form-control-file" required
+                            accept=".jpg,.jpeg,.png">
+                        <span class="error-message" id="profilePic-error"></span>
+                        <small>Allowed formats: JPG, PNG (Max 2MB)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="idProof">Upload ID Proof</label>
+                        <input type="file" id="idProof" name="idProof" class="form-control form-control-file" required
+                            accept=".pdf,.jpg,.jpeg,.png">
+                        <span class="error-message" id="idProof-error"></span>
+                        <small>Allowed formats: PDF, JPG, PNG (Max 5MB)</small>
+                    </div>
+                </div>
+                <div class="declaration-row">
+                    <input type="checkbox" id="declaration" name="declaration" required>
+                    <label for="declaration">I hereby declare that the information provided is true and correct to the best of my knowledge.</label>
+                    <span class="error-message" id="declaration-error"></span>
+                </div>
+                <div class="button-row">
+                    <button type="submit" class="btn">Submit</button>
+                    <button type="reset" class="btn btn-reset">Reset</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const today = new Date().toISOString().split('T')[0];
+
+        function enforceSingleSpace(input) {
+            const cursorPos = input.selectionStart;
+            const originalValue = input.value;
+            let newValue = originalValue.replace(/\s+/g, ' ');
+            if (originalValue !== newValue) {
+                input.value = newValue;
+                const lengthDiff = originalValue.length - newValue.length;
+                const newCursorPos = Math.max(0, cursorPos - lengthDiff);
+                input.setSelectionRange(newCursorPos, newCursorPos);
+            }
+        }
+
+        function trimSpaces(input) {
+            const cursorPos = input.selectionStart;
+            let value = input.value.trim().replace(/\s+/g, ' ');
+            let newCursorPos = cursorPos;
+            if (input.value.length !== value.length) {
+                newCursorPos = Math.max(0, cursorPos - (input.value.length - value.length));
+            }
+            input.value = value;
+            input.setSelectionRange(newCursorPos, newCursorPos);
+        }
+
+        function validateDOB(dobField) {
+            const errorElement = document.getElementById('dob-error');
+            if (!dobField.value) {
+                errorElement.textContent = 'Date of Birth is required';
+                return false;
+            }
+            const dob = new Date(dobField.value);
+            const minDate = new Date('1950-01-01');
+            const maxDate = new Date('2005-12-31');
+            if (dob < minDate || dob > maxDate) {
+                errorElement.textContent = 'Date of Birth must be between 01/01/1950 and 12/31/2005';
+                return false;
+            }
+            errorElement.textContent = '';
+            return true;
+        }
+
+        function validateEducationYear(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorElement = document.getElementById(`${fieldId}-error`);
+            const dobField = document.getElementById('dob');
+            if (!field.value) return true;
+            const currentYear = new Date().getFullYear();
+            if (parseInt(field.value) > currentYear) {
+                errorElement.textContent = 'Year cannot be in the future';
+                return false;
+            }
+            if (dobField.value) {
+                const birthYear = new Date(dobField.value).getFullYear();
+                const minYear = birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18);
+                if (parseInt(field.value) <= birthYear) {
+                    errorElement.textContent = 'Year must be after birth year';
+                    return false;
+                }
+                if (parseInt(field.value) < minYear) {
+                    errorElement.textContent = `Year must be at least ${minYear}`;
+                    return false;
+                }
+            }
+            if (fieldId === 'interYear' && document.getElementById('sscYear').value) {
+                const sscYear = parseInt(document.getElementById('sscYear').value);
+                if (parseInt(field.value) <= sscYear) {
+                    errorElement.textContent = 'Intermediate year must be after SSC year';
+                    return false;
+                }
+            }
+            if (fieldId === 'graduationYear' && document.getElementById('interYear').value) {
+                const interYear = parseInt(document.getElementById('interYear').value);
+                if (parseInt(field.value) <= interYear) {
+                    errorElement.textContent = 'Graduation year must be after Intermediate year';
+                    return false;
+                }
+            }
+            errorElement.textContent = '';
+            return true;
+        }
+
+        function validateEmploymentDates() {
+            const startField = document.getElementById('prevEmploymentStart');
+            const endField = document.getElementById('prevEmploymentEnd');
+            const startError = document.getElementById('prevEmploymentStart-error');
+            const endError = document.getElementById('prevEmploymentEnd-error');
+            startError.textContent = '';
+            endError.textContent = '';
+            if (startField.value && endField.value) {
+                const startDate = new Date(startField.value);
+                const endDate = new Date(endField.value);
+                if (endDate <= startDate) {
+                    endError.textContent = 'End date must be after start date';
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateField(field) {
+            const errorElement = document.getElementById(`${field.id}-error`);
+            errorElement.textContent = '';
+            if (field.type === 'checkbox' && field.required && !field.checked) {
+                errorElement.textContent = 'You must agree to the declaration';
+                return false;
+            }
+            if (field.required && !field.value.trim() && field.type !== 'checkbox') {
+                errorElement.textContent = 'This field is required';
+                return false;
+            }
+            if (!field.required && !field.value.trim() && field.type !== 'checkbox') {
+                return true;
+            }
+            if (field.type !== 'checkbox' && /(^ )|(  )|( $)/.test(field.value)) {
+                errorElement.textContent = 'Only single space between words allowed';
+                return false;
+            }
+            if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+                errorElement.textContent = field.title || 'Invalid format';
+                return false;
+            }
+            if (field.minLength && field.value.length < field.minLength) {
+                errorElement.textContent = `Minimum ${field.minLength} characters required`;
+                return false;
+            }
+            if (field.id === 'phone' || field.id === 'mobileNumber' || field.id === 'emergencyContactPhone') {
+                if (/^0+$/.test(field.value)) {
+                    errorElement.textContent = 'Cannot be all zeros';
+                    return false;
+                }
+                if (/(\d)\1{4}/.test(field.value)) {
+                    errorElement.textContent = 'Cannot have 5+ repeated digits';
+                    return false;
+                }
+            }
+            if (field.id === 'zipCode' && /^0+$/.test(field.value)) {
+                errorElement.textContent = 'Cannot be all zeros';
+                return false;
+            }
+            if (field.id === 'confirmAccountNumber') {
+                const accountNumber = document.getElementById('accountNumber').value;
+                if (field.value !== accountNumber) {
+                    errorElement.textContent = 'Account numbers must match';
+                    return false;
+                }
+            }
+            if (field.id === 'sscYear' || field.id === 'interYear' || field.id === 'graduationYear') {
+                return validateEducationYear(field.id);
+            }
+            if (field.id === 'jobStartDate') {
+                const todayDate = new Date().toISOString().split('T')[0];
+                if (field.value !== todayDate) {
+                    errorElement.textContent = 'Job start date must be today';
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function validateFileInput(fileInput) {
+            const file = fileInput.files[0];
+            const errorElement = document.getElementById(`${fileInput.id}-error`);
+            const allowedTypes = {
+                profilePic: ['image/jpeg', 'image/png'],
+                idProof: ['application/pdf', 'image/jpeg', 'image/png'],
+                sscCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                interCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                degreeCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+                experienceLetter: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+            };
+            const maxSizeMB = fileInput.id === 'profilePic' ? 2 : 5;
+            const maxSizeBytes = maxSizeMB * 1024 * 1024;
+            if (!file && fileInput.required) {
+                errorElement.textContent = 'Please upload a file';
+                return false;
+            }
+            if (file) {
+                if (!allowedTypes[fileInput.id].includes(file.type)) {
+                    errorElement.textContent = `Invalid file type. Allowed: ${allowedTypes[fileInput.id].map(type => type.split('/')[1].toUpperCase()).join(', ')}`;
+                    return false;
+                }
+                if (file.size > maxSizeBytes) {
+                    errorElement.textContent = `File size exceeds ${maxSizeMB}MB limit`;
+                    return false;
+                }
+            }
+            errorElement.textContent = '';
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('onboardingForm');
+            document.getElementById('jobStartDate').setAttribute('max', today);
+            document.getElementById('jobStartDate').value = today;
+            const formControls = form.querySelectorAll('input, select, textarea');
+            formControls.forEach(control => {
+                control.addEventListener('input', function() {
+                    validateField(this);
+                    if (this.id === 'accountNumber') {
+                        const confirmField = document.getElementById('confirmAccountNumber');
+                        if (confirmField.value) {
+                            validateField(confirmField);
+                        }
+                    }
+                    if (this.id === 'dob' && this.value) {
+                        const birthYear = new Date(this.value).getFullYear();
+                        const educationFields = ['sscYear', 'interYear', 'graduationYear'];
+                        educationFields.forEach(fieldId => {
+                            const field = document.getElementById(fieldId);
+                            field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
+                            if (field.value) {
+                                validateField(field);
+                            }
+                        });
+                    }
+                    if (this.type === 'text' || this.type === 'email') {
+                        this.value = this.value.trimStart();
+                    }
+                });
+                control.addEventListener('blur', function() {
+                    validateField(this);
+                    if (this.type === 'text' || this.type === 'email') {
+                        this.value = this.value.trim().replace(/\s+/g, ' ');
+                    }
+                });
+            });
+            document.getElementById('dob').addEventListener('change', function() {
+                validateField(this);
+                const dob = this.value;
+                const educationFields = ['sscYear', 'interYear', 'graduationYear'];
+                if (dob) {
+                    const birthYear = new Date(dob).getFullYear();
+                    educationFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
+                        if (field.value) {
+                            validateField(field);
+                        }
+                    });
+                }
+            });
+            const fileInputs = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
+            fileInputs.forEach(id => {
+                document.getElementById(id).addEventListener('change', function() {
+                    validateFileInput(this);
+                });
+            });
+
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                let isValid = true;
+                const fieldsToValidate = form.querySelectorAll('input, select, textarea');
+                fieldsToValidate.forEach(field => {
+                    if (fileInputs.includes(field.id)) {
+                        if (!validateFileInput(field)) {
+                            isValid = false;
+                        }
+                    } else if (!validateField(field)) {
+                        isValid = false;
+                    }
+                });
+                const accountNumber = document.getElementById('accountNumber').value;
+                const confirmAccountNumber = document.getElementById('confirmAccountNumber').value;
+                if (accountNumber !== confirmAccountNumber) {
+                    document.getElementById('confirmAccountNumber-error').textContent = 'Account numbers must match';
+                    isValid = false;
+                }
+                const jobStartDate = document.getElementById('jobStartDate').value;
+                if (jobStartDate !== today) {
+                    document.getElementById('jobStartDate-error').textContent = 'Job start date must be today';
+                    isValid = false;
+                }
+                if (!validateDOB(document.getElementById('dob'))) {
+                    isValid = false;
+                }
+                if (!validateEmploymentDates()) {
+                    isValid = false;
+                }
+                if (!isValid) {
+                    alert('Please correct the errors in the form before submitting.');
+                    return;
+                }
+
+                const formData = new FormData(form);
+                try {
+                    const response = await fetch('http://localhost:3000/api/employees', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to submit form data');
+                    }
+                    alert('Form submitted successfully!');
+                    form.reset();
+                    document.getElementById('jobStartDate').value = today;
+                    form.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert(`Error submitting form: ${error.message}`);
+                }
+            });
+
+            form.addEventListener('reset', function() {
+                const errorMessages = form.querySelectorAll('.error-message');
+                errorMessages.forEach(error => error.textContent = '');
+                document.getElementById('jobStartDate').value = today;
+            });
+        });
+    </script>
+</body>
+</html>

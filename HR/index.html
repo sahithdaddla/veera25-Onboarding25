@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Onboarding Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4bb543;
+            --error: #ff3333;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--light);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+        }
+
+        .header-quote {
+            font-style: italic;
+            opacity: 0.9;
+            font-size: 1.1rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        #onboarding-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        #onboarding-table th,
+        #onboarding-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        #onboarding-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            position: relative;
+            padding-left: 2.5rem;
+        }
+
+        #onboarding-table th::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 1rem;
+            font-size: 1rem;
+        }
+
+        #onboarding-table th:nth-child(1)::before { content: "\f007"; }
+        #onboarding-table th:nth-child(2)::before { content: "\f2c2"; }
+        #onboarding-table th:nth-child(3)::before { content: "\f0c0"; }
+        #onboarding-table th:nth-child(4)::before { content: "\f0b1"; }
+        #onboarding-table th:nth-child(5)::before { content: "\f073"; }
+        #onboarding-table th:nth-child(6)::before { content: "\f14a"; }
+        #onboarding-table th:nth-child(7)::before { content: "\f0c9"; }
+
+        #onboarding-table tr:hover {
+            background-color: rgba(72, 149, 239, 0.05);
+        }
+
+        .employee-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .employee-initial {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .employee-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .employee-details span {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .status-badge.pending {
+            background: #ffe5b4;
+            color: #d2691e;
+        }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .status-badge.rejected {
+            background: #f8d7da;
+            color: var(--error);
+        }
+
+        .action-buttons .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--primary);
+            color: white;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-buttons .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .no-data {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+
+        .no-data-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--error);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .detail-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-group-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-group-title::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .detail-group:nth-child(1) .detail-group-title::before { content: "\f007"; }
+        .detail-group:nth-child(2) .detail-group-title::before { content: "\f3c5"; }
+        .detail-group:nth-child(3) .detail-group-title::before { content: "\f19c"; }
+        .detail-group:nth-child(4) .detail-group-title::before { content: "\f19d"; }
+        .detail-group:nth-child(5) .detail-group-title::before { content: "\f0e0"; }
+        .detail-group:nth-child(6) .detail-group-title::before { content: "\f0b1"; }
+        .detail-group:nth-child(7) .detail-group-title::before { content: "\f14a"; }
+
+        .detail-group p {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-group strong {
+            width: 200px;
+            font-weight: 500;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-icon {
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        .detail-value {
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .file-btn {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .file-btn.view {
+            background: var(--primary);
+        }
+
+        .file-btn.view:hover {
+            background: var(--primary-dark);
+        }
+
+        .file-btn.download {
+            background: var(--success);
+        }
+
+        .file-btn.download:hover {
+            background: #3d9c35;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .modal-footer .btn {
+            padding: 0.85rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-accept {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-accept:hover {
+            background: #3d9c35;
+            transform: translateY(-2px);
+        }
+
+        .btn-reject {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #e62e2e;
+            transform: translateY(-2px);
+        }
+
+        .btn-cancel {
+            background: white;
+            color: var(--gray);
+            border: 1px solid var(--light-gray);
+        }
+
+        .btn-cancel:hover {
+            background: var(--light);
+            color: var(--dark);
+            border-color: var(--gray);
+            transform: translateY(-2px);
+        }
+
+        .view-modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-modal-body {
+            flex: 1;
+            padding: 1rem;
+            overflow: auto;
+        }
+
+        .view-modal-body iframe,
+        .view-modal-body img {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .header-quote {
+                font-size: 1rem;
+            }
+
+            #onboarding-table {
+                display: block;
+            }
+
+            #onboarding-table thead {
+                display: none;
+            }
+
+            #onboarding-table tbody,
+            #onboarding-table tr {
+                display: block;
+            }
+
+            #onboarding-table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 0.8rem;
+                border-bottom: none;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            #onboarding-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: 45%;
+                font-weight: 600;
+                color: var(--primary);
+            }
+
+            #onboarding-table td.employee-cell {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-left: 1rem;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+
+            .view-modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>HR Onboarding Management</h1>
+        <div class="header-quote">"Efficient onboarding builds a strong foundation for employee success"</div>
+    </header>
+    <div class="container">
+        <h3>Employee Onboarding Records</h3>
+                <!-- Search and Filter Section -->
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by name, ID, department..." oninput="filterTable()">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <select class="filter-select" id="statusFilter" onchange="filterTable()">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Active">Active</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        
+                        <select class="filter-select" id="departmentFilter" onchange="filterTable()">
+                            <option value="">All Departments</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                        
+                        <!-- <button class="reset-btn" onclick="resetFilters()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;">
+                                <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                            </svg>
+                            Reset
+                        </button> -->
+                    </div>
+                </div>
+        <table id="onboarding-table">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                    <th>Job Role</th>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="no-data-message" class="no-data" style="display: none;">
+            <i class="fas fa-file-alt no-data-icon"></i>
+            No onboarding records found.
+        </div>
+    </div>
+
+    <div class="modal" id="view-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-user modal-icon"></i>
+                    Employee Details
+                </h3>
+                <button class="modal-close" onclick="closeModal('view-modal')">×</button>
+            </div>
+            <div class="modal-body" id="view-modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-accept" id="acceptBtn">
+                    <i class="fas fa-check"></i> Accept
+                </button>
+                <button class="btn btn-reject" id="rejectBtn">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+                <button class="btn btn-cancel" onclick="closeModal('view-modal')">
+                    <i class="fas fa-window-close"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="file-view-modal">
+        <div class="view-modal-content">
+            <div class="view-modal-header">
+                <h3 id="file-view-title">Viewing Document</h3>
+                <button class="modal-close" onclick="closeModal('file-view-modal')">×</button>
+            </div>
+            <div class="view-modal-body" id="file-view-body"></div>
+        </div>
+    </div>
+<script>
+    let allRecords = [];
+let currentIndex = -1;
+
+function sanitizeFileName(fileName) {
+    return fileName ? fileName.replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_') : 'unknown';
+}
+
+function getMimeType(fileName) {
+    if (!fileName) return 'application/octet-stream';
+    const ext = fileName.split('.').pop().toLowerCase();
+    const mimeTypes = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'pdf': 'application/pdf',
+        'doc': 'application/msword',
+        'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('fade-out');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('fade-out');
+    }, 300);
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'flex';
+    const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    modal.addEventListener('keydown', function trapFocus(e) {
+        if (e.key === 'Tab') {
+            if (e.shiftKey && document.activeElement === firstElement) {
+                e.preventDefault();
+                lastElement.focus();
+            } else if (!e.shiftKey && document.activeElement === lastElement) {
+                e.preventDefault();
+                firstElement.focus();
+            }
+        }
+    });
+
+    firstElement.focus();
+}
+
+function displayRecords(records) {
+    const onboardingTable = document.querySelector('#onboarding-table tbody');
+    const noDataMessage = document.getElementById('no-data-message');
+    onboardingTable.innerHTML = '';
+    if (!records || records.length === 0) {
+        noDataMessage.style.display = 'flex';
+        noDataMessage.textContent = 'No onboarding records found.';
+        return;
+    }
+    noDataMessage.style.display = 'none';
+    records.forEach(record => {
+        const row = document.createElement('tr');
+        const initial = record.fullName ? record.fullName.charAt(0).toUpperCase() : '?';
+
+        const employeeCell = document.createElement('td');
+        employeeCell.className = 'employee-cell';
+        employeeCell.setAttribute('data-label', 'Employee');
+
+        const initialDiv = document.createElement('div');
+        initialDiv.className = 'employee-initial';
+        initialDiv.textContent = initial;
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.className = 'employee-details';
+        detailsDiv.textContent = record.fullName || 'N/A';
+
+        const emailSpan = document.createElement('span');
+        emailSpan.textContent = record.email || 'N/A';
+
+        detailsDiv.appendChild(emailSpan);
+        employeeCell.appendChild(initialDiv);
+        employeeCell.appendChild(detailsDiv);
+
+        const empIdCell = document.createElement('td');
+        empIdCell.setAttribute('data-label', 'Employee ID');
+        empIdCell.textContent = record.empId || 'N/A';
+
+        const deptCell = document.createElement('td');
+        deptCell.setAttribute('data-label', 'Department');
+        deptCell.textContent = record.department || 'N/A';
+
+        const jobRoleCell = document.createElement('td');
+        jobRoleCell.setAttribute('data-label', 'Job Role');
+        jobRoleCell.textContent = record.jobRole || 'N/A';
+
+        const startDateCell = document.createElement('td');
+        startDateCell.setAttribute('data-label', 'Start Date');
+        startDateCell.textContent = formatDate(record.jobStartDate);
+
+        const statusCell = document.createElement('td');
+        statusCell.setAttribute('data-label', 'Status');
+        const statusSpan = document.createElement('span');
+        statusSpan.className = `status-badge ${record.status.toLowerCase()}`;
+        statusSpan.textContent = record.status;
+        statusCell.appendChild(statusSpan);
+
+        const actionCell = document.createElement('td');
+        actionCell.className = 'action-buttons';
+        actionCell.setAttribute('data-label', 'Actions');
+        const viewButton = document.createElement('button');
+        viewButton.className = 'btn';
+        viewButton.title = 'View';
+        viewButton.innerHTML = '<i class="fas fa-eye"></i> View';
+        viewButton.onclick = () => viewRecord(record.id);
+        actionCell.appendChild(viewButton);
+
+        row.appendChild(employeeCell);
+        row.appendChild(empIdCell);
+        row.appendChild(deptCell);
+        row.appendChild(jobRoleCell);
+        row.appendChild(startDateCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionCell);
+
+        onboardingTable.appendChild(row);
+    });
+}
+
+async function loadData() {
+    const noDataMessage = document.getElementById('no-data-message');
+    noDataMessage.style.display = 'flex';
+    noDataMessage.textContent = 'Loading...';
+    try {
+        const response = await fetch('http://localhost:3000/api/onboarding');
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        allRecords = await response.json();
+        displayRecords(allRecords);
+        populateDepartmentFilter(allRecords);
+    } catch (error) {
+        console.error('Error loading data:', error.message, error.stack);
+        noDataMessage.style.display = 'flex';
+        noDataMessage.textContent = `Error loading data: ${error.message}`;
+    }
+}
+
+function populateDepartmentFilter(records) {
+    const departmentFilter = document.getElementById('departmentFilter');
+    const departments = new Set();
+    const existingOptions = Array.from(departmentFilter.options).map(opt => opt.value);
+    
+    records.forEach(record => {
+        if (record.department && !existingOptions.includes(record.department)) {
+            departments.add(record.department);
+        }
+    });
+    
+    departments.forEach(dept => {
+        const option = document.createElement('option');
+        option.value = dept;
+        option.textContent = dept;
+        departmentFilter.appendChild(option);
+    });
+}
+
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const departmentFilter = document.getElementById('departmentFilter').value;
+
+    const filteredRecords = allRecords.filter(record => {
+        const matchesSearch = 
+            (record.fullName && record.fullName.toLowerCase().includes(searchTerm)) ||
+            (record.empId && record.empId.toLowerCase().includes(searchTerm)) ||
+            (record.department && record.department.toLowerCase().includes(searchTerm)) ||
+            (record.jobRole && record.jobRole.toLowerCase().includes(searchTerm));
+        
+        const matchesStatus = !statusFilter || (record.status && record.status === statusFilter);
+        const matchesDepartment = !departmentFilter || (record.department && record.department === departmentFilter);
+        
+        return matchesSearch && matchesStatus && matchesDepartment;
+    });
+    
+    displayRecords(filteredRecords);
+}
+
+async function viewRecord(id) {
+    currentIndex = id;
+    try {
+        const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        const record = await response.json();
+        const modalBody = document.getElementById('view-modal-body');
+        const fileFields = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
+        modalBody.innerHTML = `
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-user"></i> Personal Information</div>
+                <p>
+                    <strong><i class="fas fa-user detail-icon"></i> Full Name</strong>
+                    <span class="detail-value">${record.fullName || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-id-badge detail-icon"></i> Employee ID</strong>
+                    <span class="detail-value">${record.empId || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-envelope detail-icon"></i> Email</strong>
+                    <span class="detail-value">${record.email || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
+                    <span class="detail-value">${record.phone || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Date of Birth</strong>
+                    <span class="detail-value">${formatDate(record.dob)}</span>
+                </p>
+                ${fileFields.map(field => `
+                    <p>
+                        <strong><i class="fas ${field === 'profilePic' ? 'fa-image' : field === 'idProof' ? 'fa-id-card' : 'fa-file-alt'} detail-icon"></i> ${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</strong>
+                        <span class="detail-value">
+                            ${record[`${field}Name`] ? record[`${field}Name`] : 'N/A'}
+                            ${record[`${field}Name`] ? `
+                            <span class="file-actions">
+                                <button class="file-btn view" onclick="viewFile(${id}, '${field}')"><i class="fas fa-eye"></i> View</button>
+                                <button class="file-btn download" onclick="downloadFile(${id}, '${field}')"><i class="fas fa-download"></i> Download</button>
+                            </span>` : ''}
+                        </span>
+                    </p>
+                `).join('')}
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-map-marker-alt"></i> Address</div>
+                <p>
+                    <strong><i class="fas fa-road detail-icon"></i> Street Address</strong>
+                    <span class="detail-value">${record.streetAddress || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-city detail-icon"></i> City</strong>
+                    <span class="detail-value">${record.city || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-flag detail-icon"></i> State</strong>
+                    <span class="detail-value">${record.state || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-mail-bulk detail-icon"></i> Zip Code</strong>
+                    <span class="detail-value">${record.zipCode || 'N/A'}</span>
+                </p>
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-university"></i> Banking Details</div>
+                <p>
+                    <strong><i class="fas fa-university detail-icon"></i> Bank Name</strong>
+                    <span class="detail-value">${record.bankName || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-phone detail-icon"></i> Mobile Number</strong>
+                    <span class="detail-value">${record.mobileNumber || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-credit-card detail-icon"></i> Account Number</strong>
+                    <span class="detail-value">${record.accountNumber || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-code detail-icon"></i> IFSC Number</strong>
+                    <span class="detail-value">${record.ifscNumber || 'N/A'}</span>
+                </p>
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-briefcase"></i> Experience</div>
+                <p>
+                    <strong><i class="fas fa-building detail-icon"></i> Previous Company Name</strong>
+                    <span class="detail-value">${record.prevCompanyName || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-user-tie detail-icon"></i> Previous Job Role</strong>
+                    <span class="detail-value">${record.prevJobRole || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
+                    <span class="detail-value">${formatDate(record.prevEmploymentStart)}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> End Date</strong>
+                    <span class="detail-value">${formatDate(record.prevEmploymentEnd)}</span>
+                </p>
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-graduation-cap"></i> Education Details</div>
+                <p>
+                    <strong><i class="fas fa-school detail-icon"></i> SSC Institution</strong>
+                    <span class="detail-value">${record.sscInstitution || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> SSC Year</strong>
+                    <span class="detail-value">${record.sscYear || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-school detail-icon"></i> Intermediate Institution</strong>
+                    <span class="detail-value">${record.interInstitution || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Intermediate Year</strong>
+                    <span class="detail-value">${record.interYear || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-graduation-cap detail-icon"></i> Highest Degree</strong>
+                    <span class="detail-value">${record.degree || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-university detail-icon"></i> Institution</strong>
+                    <span class="detail-value">${record.institution || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Graduation Year</strong>
+                    <span class="detail-value">${record.graduationYear || 'N/A'}</span>
+                </p>
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-ambulance"></i> Emergency Contact Details</div>
+                <p>
+                    <strong><i class="fas fa-user detail-icon"></i> Contact Name</strong>
+                    <span class="detail-value">${record.emergencyContactName || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-users detail-icon"></i> Relationship</strong>
+                    <span class="detail-value">${record.emergencyContactRelationship || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
+                    <span class="detail-value">${record.emergencyContactPhone || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-map-marker-alt detail-icon"></i> Address</strong>
+                    <span class="detail-value">${record.emergencyContactAddress || 'N/A'}</span>
+                </p>
+            </div>
+            <div class="detail-group">
+                <div class="detail-group-title"><i class="fas fa-briefcase"></i> Job Details</div>
+                <p>
+                    <strong><i class="fas fa-user-tie detail-icon"></i> Job Role</strong>
+                    <span class="detail-value">${record.jobRole || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
+                    <span class="detail-value">${formatDate(record.jobStartDate)}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-building detail-icon"></i> Department</strong>
+                    <span class="detail-value">${record.department || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong><i class="fas fa-check-circle detail-icon"></i> Status</strong>
+                    <span class="detail-value">${record.status || 'N/A'}</span>
+                </p>
+            </div>
+        `;
+        const acceptBtn = document.getElementById('acceptBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+        acceptBtn.style.display = record.status === 'Pending' ? 'inline-flex' : 'none';
+        rejectBtn.style.display = record.status === 'Pending' ? 'inline-flex' : 'none';
+        openModal('view-modal');
+    } catch (error) {
+        console.error('Error fetching record:', error.message, error.stack);
+        alert(`Error loading record: ${error.message}`);
+    }
+}
+
+async function viewFile(id, field) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+        }
+        const record = await response.json();
+        const fileName = record[`${field}Name`];
+        const mimeType = getMimeType(fileName);
+        if (!fileName) {
+            throw new Error('No file available to view.');
+        }
+        const fileUrl = `http://localhost:3000/api/onboarding/${id}/file/${field}`;
+        const viewModal = document.getElementById('file-view-modal');
+        const viewBody = document.getElementById('file-view-body');
+        const viewTitle = document.getElementById('file-view-title');
+        viewTitle.textContent = `Viewing: ${sanitizeFileName(fileName)}`;
+        viewBody.innerHTML = '';
+        if (mimeType.startsWith('image/')) {
+            viewBody.innerHTML = `<img src="${fileUrl}" alt="${sanitizeFileName(fileName)}" />`;
+        } else if (mimeType === 'application/pdf') {
+            viewBody.innerHTML = `<iframe src="${fileUrl}" title="${sanitizeFileName(fileName)}"></iframe>`;
+        } else {
+            throw new Error('This file type can only be downloaded.');
+        }
+        openModal('file-view-modal');
+    } catch (error) {
+        console.error('Error viewing file:', error.message, error.stack);
+        const viewBody = document.getElementById('file-view-body');
+        viewBody.innerHTML = `<p style="color: var(--error); text-align: center;">Error: ${error.message}</p>`;
+        openModal('file-view-modal');
+    }
+}
+
+function downloadFile(id, field) {
+    window.location.href = `http://localhost:3000/api/onboarding/${id}/file/${field}`;
+}
+
+async function acceptRecord() {
+    if (currentIndex === -1) return;
+    try {
+        const response = await fetch(`http://localhost:3000/api/onboarding/${currentIndex}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'Active' })
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        alert('Employee record accepted successfully.');
+        loadData();
+        closeModal('view-modal');
+    } catch (error) {
+        console.error('Error accepting record:', error.message, error.stack);
+        alert(`Error accepting record: ${error.message}`);
+    }
+}
+
+async function rejectRecord() {
+    if (currentIndex === -1) return;
+    try {
+        const response = await fetch(`http://localhost:3000/api/onboarding/${currentIndex}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'Rejected' })
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        alert('Employee record rejected.');
+        loadData();
+        closeModal('view-modal');
+    } catch (error) {
+        console.error('Error rejecting record:', error.message, error.stack);
+        alert(`Error rejecting record: ${error.message}`);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    document.getElementById('acceptBtn').addEventListener('click', acceptRecord);
+    document.getElementById('rejectBtn').addEventListener('click', rejectRecord);
+
+    const searchInput = document.getElementById('searchInput');
+    let debounceTimeout;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(filterTable, 300);
+    });
+});
+</script>
+   
+</body>
+</html>
