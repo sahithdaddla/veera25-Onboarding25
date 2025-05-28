@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Staff Management Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f5f6fa;
+            --card-background: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        header h1 {
+            color: white;
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .search-bar {
+            max-width: 400px;
+            margin-right: auto;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            box-shadow: var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+        }
+
+        .employee-card {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+            word-break: break-word;
+            word-spacing: 0.3em; 
+        }
+
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .profile-circle {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+            }
+        }
+
+        .card-header h2 {
+            margin: 10px 0 5px;
+            font-size: 1.5em;
+            word-spacing: 0.3em; 
+        }
+
+        .employee-id {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .info-group {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr; 
+    margin-bottom: 12px;
+}
+.info-group label,
+.info-group span {
+    word-break: break-word;
+    word-spacing: 0.10em; 
+}
+
+
+        .info-group label {
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .info-group span {
+            color: var(--text-color);
+        }
+
+        .card-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .btn-view {
+            width: 100%;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+            animation: modalSlideIn 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-header .profile-circle {
+            width: 100px;
+            height: 100px;
+            font-size: 32px;
+            color: rgb(0, 0, 0);
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 2em;
+            margin: 10px 0 5px;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .details-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .details-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-item label {
+            color: #7f8c8d;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .detail-item span {
+            color: var(--text-color);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: linear-gradient(#3498db, #2980b9);
+            border-radius: 10px;
+            border: 2px solid #f1f1f1;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .modal-content {
+            scrollbar-width: thin;
+            scrollbar-color: #3498db #f1f1f1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .employee-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-height: 95vh;
+                margin: 1% auto;
+                width: 98%;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-header .profile-circle {
+                width: 80px;
+                height: 80px;
+                font-size: 24px;
+            }
+
+            .modal-body {
+                padding: 15px;
+            }
+
+            .details-section {
+                padding: 15px;
+            }
+        }
+
+        /* Ensure consistent styling for dynamic cards */
+        #dataContainer .employee-card {
+            animation-delay: 0.2s;
+        }
+
+        /* Animation delays for static cards */
+        .employee-card:nth-child(1) { animation-delay: 0.1s; }
+        .employee-card:nth-child(2) { animation-delay: 0.2s; }
+        .employee-card:nth-child(3) { animation-delay: 0.3s; }
+        .employee-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HR Staff Management</h1>
+            <p style="color: #333; text-align: center;">"Individuals play the game, but teams beat the odds."</p>
+        </header>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search employees by name, department, or ID...">
+        </div>
+        <main class="employee-grid" id="dataContainer">
+            <!-- Employee cards will be added here dynamically -->
+        </main>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="profile-circle" id="modalProfileCircle">?</div>
+                <h2 id="modalHeader">Employee Name</h2>
+                <div class="close-modal" onclick="hideModal()">×</div>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+<script>
+    function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+}
+
+async function fetchActiveEmployees() {
+  try {
+    const response = await fetch('http://localhost:3000/api/employees/active');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+    const responseData = await response.json();
+    console.log('Fetched employees:', responseData);
+    renderEmployeeCards(responseData.data);
+  } catch (error) {
+    console.error('Error fetching active employees:', error);
+    const container = document.getElementById('dataContainer');
+    container.innerHTML = `<p style="color: red; text-align: center;">Error loading employees: ${error.message}</p>`;
+  }
+}
+
+function renderEmployeeCards(employees) {
+  const dataContainer = document.getElementById('dataContainer');
+  dataContainer.innerHTML = '';
+  
+  employees.forEach(employee => {
+    const card = document.createElement('div');
+    card.className = 'employee-card';
+    card.dataset.employeeId = employee.emp_id;
+    const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+    
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="profile-circle">${initials}</div>
+        <h2>${employee.full_name}</h2>
+        <span class="employee-id">${employee.emp_id}</span>
+      </div>
+      <div class="card-body">
+        <div class="info-group">
+          <label>Department:</label>
+          <span>${employee.department || 'N/A'}</span>
+        </div>
+        <div class="info-group">
+          <label>Position:</label>
+          <span>${employee.job_role || 'N/A'}</span>
+        </div>
+        <div class="info-group">
+          <label>Join Date:</label>
+          <span>${formatDate(employee.job_start_date)}</span>
+        </div>
+        <div class="info-group">
+          <label>Status:</label>
+          <span>${employee.status || 'N/A'}</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-view" onclick="showEmployeeDetails('${employee.id}')">View Details</button>
+      </div>
+    `;
+    
+    dataContainer.appendChild(card);
+  });
+}
+
+async function showEmployeeDetails(employeeId) {
+  try {
+    const response = await fetch(`http://localhost:3000/api/onboarding/${employeeId}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+    }
+    const employee = await response.json();
+    const modal = document.getElementById('modal');
+    const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+    document.getElementById('modalHeader').textContent = employee.full_name;
+    document.getElementById('modalProfileCircle').textContent = initials;
+
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+      <div class="details-section">
+        <h3>Basic Information</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Employee ID:</label>
+            <span>${employee.emp_id || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Department:</label>
+            <span>${employee.department || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Position:</label>
+            <span>${employee.job_role || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Join Date:</label>
+            <span>${formatDate(employee.job_start_date)}</span>
+          </div>
+          <div class="detail-item">
+            <label>Status:</label>
+            <span>${employee.status || 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="details-section">
+        <h3>Contact Details</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Email:</label>
+            <span>${employee.email || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Date of Birth:</label>
+            <span>${formatDate(employee.dob)}</span>
+          </div>
+          <div class="detail-item">
+            <label>Phone:</label>
+            <span>${employee.phone || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Address:</label>
+            <span>${employee.street_address || ''}, ${employee.city || ''}, ${employee.state || ''}, ${employee.zip_code || ''}</span>
+          </div>
+          <div class="detail-item">
+            <label>City:</label>
+            <span>${employee.city || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Country:</label>
+            <span>N/A</span>
+          </div>
+        </div>
+      </div>
+      <div class="details-section">
+        <h3>Education Details</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>SSC Institution:</label>
+            <span>${employee.ssc_institution || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>SSC Year:</label>
+            <span>${employee.ssc_year || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Intermediate Institution:</label>
+            <span>${employee.inter_institution || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Intermediate Year:</label>
+            <span>${employee.inter_year || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Highest Degree:</label>
+            <span>${employee.degree || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Institution:</label>
+            <span>${employee.institution || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Graduation Year:</label>
+            <span>${employee.graduation_year || 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="details-section">
+        <h3>Banking Details</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Bank Name:</label>
+            <span>${employee.bank_name || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Mobile Number:</label>
+            <span>${employee.mobile_number || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Account Number:</label>
+            <span>${employee.account_number || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>IFSC Number:</label>
+            <span>${employee.ifsc_number || 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="details-section">
+        <h3>Emergency Contact</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <label>Name:</label>
+            <span>${employee.emergency_contact_name || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Relationship:</label>
+            <span>${employee.emergency_contact_relationship || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Phone:</label>
+            <span>${employee.emergency_contact_phone || 'N/A'}</span>
+          </div>
+          <div class="detail-item">
+            <label>Address:</label>
+            <span>${employee.emergency_contact_address || 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    modal.style.display = 'block';
+    setTimeout(() => {
+      modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  } catch (error) {
+    console.error('Error fetching employee details:', error);
+    alert(`Error loading employee details: ${error.message}`);
+  }
+}
+
+function hideModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  fetchActiveEmployees();
+  
+  document.getElementById('searchInput').addEventListener('input', async (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    try {
+      const response = await fetch('http://localhost:3000/api/employees/active');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
+      const responseData = await response.json();
+      const employees = responseData.data;
+      const filteredEmployees = employees.filter(employee => {
+        const searchString = `${employee.full_name} ${employee.emp_id} ${employee.department || ''}`.toLowerCase();
+        return searchString.includes(searchTerm);
+      });
+      renderEmployeeCards(filteredEmployees);
+    } catch (error) {
+      console.error('Error searching employees:', error);
+      const container = document.getElementById('dataContainer');
+      container.innerHTML = `<p style="color: red; text-align: center;">Error searching employees: ${error.message}</p>`;
+    }
+  });
+
+  window.addEventListener('click', (event) => {
+    const modal = document.getElementById('modal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+</script>
+</body>
+</html>

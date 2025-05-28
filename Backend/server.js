@@ -1,285 +1,281 @@
 const express = require('express');
-const mysql = require('mysql2/promise');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-const multer = require('multer');
-const path = require('path');
+const { Pool } = require('pg');
 const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'employee_db',
+  password: 'Veera@0134',
+  port: 5432,
+});
 
-app.use(express.static(path.join(__dirname, 'public')));
-
-const uploadDir = path.join(__dirname, 'Uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
+pool.connect()
+  .then(() => console.log('Connected to PostgreSQL database'))
+  .catch(err => console.error('Database connection error:', err));
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, 'Uploads');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath);
     }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const sanitizedFileName = file.originalname.replace(/[<>:"/\\|?*]/g, '_').replace(/\s+/g, '_');
+    const timestamp = Date.now();
+    const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
+    cb(null, uniqueFileName);
+  }
 });
 
 const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const filetypes = /pdf|jpg|jpeg|png|doc|docx/;
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = filetypes.test(file.mimetype);
-        if (extname && mimetype) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only PDF, JPG, JPEG, PNG, DOC, DOCX files are allowed'));
-        }
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG, PNG, PDF, DOC, and DOCX are allowed.'));
     }
+  }
+}).fields([
+  { name: 'profilePic', maxCount: 1 },
+  { name: 'idProof', maxCount: 1 },
+  { name: 'sscCertificate', maxCount: 1 },
+  { name: 'interCertificate', maxCount: 1 },
+  { name: 'degreeCertificate', maxCount: 1 },
+  { name: 'experienceLetter', maxCount: 1 }
+]);
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'Veera@0134',
-    database: 'hrms_db'
-});
-
-app.post('/api/employees', upload.fields([
-    { name: 'experienceLetter', maxCount: 1 },
-    { name: 'sscCertificate', maxCount: 1 },
-    { name: 'interCertificate', maxCount: 1 },
-    { name: 'degreeCertificate', maxCount: 1 },
-    { name: 'profilePic', maxCount: 1 },
-    { name: 'idProof', maxCount: 1 }
-]), async (req, res) => {
-    const {
-        fullName, empId, email, phone, dob,
-        streetAddress, city, state, zipCode,
-        bankName, mobileNumber, accountNumber, ifscNumber,
-        prevCompanyName, prevJobRole, prevEmploymentStart, prevEmploymentEnd,
-        sscInstitution, sscYear,
-        interInstitution, interYear,
-        degree, institution, graduationYear,
-        emergencyContactName, emergencyContactRelationship, emergencyContactPhone, emergencyContactAddress,
-        jobRole, jobStartDate, department
-    } = req.body;
-
-    const files = req.files;
-    const experienceLetterName = files.experienceLetter ? files.experienceLetter[0].filename : null;
-    const sscCertificateName = files.sscCertificate ? files.sscCertificate[0].filename : null;
-    const interCertificateName = files.interCertificate ? files.interCertificate[0].filename : null;
-    const degreeCertificateName = files.degreeCertificate ? files.degreeCertificate[0].filename : null;
-    const profilePicName = files.profilePic ? files.profilePic[0].filename : null;
-    const idProofName = files.idProof ? files.idProof[0].filename : null;
-
+app.post('/api/employees', (req, res, next) => {
+  upload(req, res, async (err) => {
+    if (err) {
+      console.error('File upload error:', err);
+      return res.status(400).json({ error: err.message || 'File upload error' });
+    }
     try {
-        console.log('Inserting employee data:', { fullName, empId, email, department, jobRole });
-        const [result] = await pool.query(
-            `INSERT INTO employees (
-                full_name, emp_id, email, phone, dob,
-                street_address, city, state, zip_code,
-                bank_name, mobile_number, account_number, ifsc_number,
-                prev_company_name, prev_job_role, prev_employment_start, prev_employment_end,
-                experience_letter_name,
-                ssc_institution, ssc_year, ssc_certificate_name,
-                inter_institution, inter_year, inter_certificate_name,
-                degree, institution, graduation_year, degree_certificate_name,
-                emergency_contact_name, emergency_contact_relationship, emergency_contact_phone, emergency_contact_address,
-                job_role, job_start_date, department,
-                profile_pic_name, id_proof_name, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending')`,
-            [
-                fullName, empId, email, phone, dob,
-                streetAddress, city, state, zipCode,
-                bankName, mobileNumber, accountNumber, ifscNumber,
-                prevCompanyName || null, prevJobRole || null, prevEmploymentStart || null, prevEmploymentEnd || null,
-                experienceLetterName,
-                sscInstitution, sscYear, sscCertificateName,
-                interInstitution, interYear, interCertificateName,
-                degree, institution, graduationYear, degreeCertificateName,
-                emergencyContactName, emergencyContactRelationship, emergencyContactPhone, emergencyContactAddress,
-                jobRole, jobStartDate, department,
-                profilePicName, idProofName
-            ]
-        );
-        console.log(`Employee data inserted with ID: ${result.insertId}`);
-        res.status(200).json({ message: 'Employee data submitted successfully', id: result.insertId });
+      const formData = req.body;
+      console.log('Form data received:', formData);
+      console.log('Files received:', req.files);
+
+      // Helper function to handle date fields
+      const getDateValue = (value) => {
+        if (!value || value.trim() === '' || value === 'null') {
+          return null;
+        }
+        // Validate date format (YYYY-MM-DD)
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+          console.warn(`Invalid date format for value: ${value}`);
+          return null;
+        }
+        return value;
+      };
+
+      const result = await pool.query(
+        `INSERT INTO onboarding_records (
+          emp_id, full_name, email, phone, department, job_role, job_start_date, 
+          street_address, city, state, zip_code, dob, status,
+          profile_pic_name, profile_pic_path, id_proof_name, id_proof_path,
+          ssc_certificate_name, ssc_certificate_path, inter_certificate_name, inter_certificate_path,
+          degree_certificate_name, degree_certificate_path, experience_letter_name, experience_letter_path,
+          ssc_institution, ssc_year, inter_institution, inter_year, degree, institution, graduation_year,
+          bank_name, mobile_number, account_number, ifsc_number,
+          prev_company_name, prev_job_role, prev_employment_start, prev_employment_end,
+          emergency_contact_name, emergency_contact_relationship, emergency_contact_phone, emergency_contact_address
+        ) VALUES (
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+          $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40,
+          $41, $42, $43, $44
+        ) RETURNING id`,
+        [
+          formData.empId,
+          formData.fullName,
+          formData.email,
+          formData.phone,
+          formData.department,
+          formData.jobRole,
+          getDateValue(formData.jobStartDate),
+          formData.streetAddress,
+          formData.city,
+          formData.state,
+          formData.zipCode,
+          getDateValue(formData.dob),
+          'Pending',
+          req.files['profilePic'] ? req.files['profilePic'][0].originalname : null,
+          req.files['profilePic'] ? req.files['profilePic'][0].path : null,
+          req.files['idProof'] ? req.files['idProof'][0].originalname : null,
+          req.files['idProof'] ? req.files['idProof'][0].path : null,
+          req.files['sscCertificate'] ? req.files['sscCertificate'][0].originalname : null,
+          req.files['sscCertificate'] ? req.files['sscCertificate'][0].path : null,
+          req.files['interCertificate'] ? req.files['interCertificate'][0].originalname : null,
+          req.files['interCertificate'] ? req.files['interCertificate'][0].path : null,
+          req.files['degreeCertificate'] ? req.files['degreeCertificate'][0].originalname : null,
+          req.files['degreeCertificate'] ? req.files['degreeCertificate'][0].path : null,
+          req.files['experienceLetter'] ? req.files['experienceLetter'][0].originalname : null,
+          req.files['experienceLetter'] ? req.files['experienceLetter'][0].path : null,
+          formData.sscInstitution,
+          formData.sscYear,
+          formData.interInstitution,
+          formData.interYear,
+          formData.degree,
+          formData.institution,
+          formData.graduationYear,
+          formData.bankName,
+          formData.mobileNumber,
+          formData.accountNumber,
+          formData.ifscNumber,
+          formData.prevCompanyName,
+          formData.prevJobRole,
+          getDateValue(formData.prevEmploymentStart),
+          getDateValue(formData.prevEmploymentEnd),
+          formData.emergencyContactName,
+          formData.emergencyContactRelationship,
+          formData.emergencyContactPhone,
+          formData.emergencyContactAddress
+        ]
+      );
+      console.log('Insert result:', result.rows[0]);
+      return res.status(201).json({
+        message: 'Employee onboarding form submitted successfully',
+        id: result.rows[0].id
+      });
     } catch (error) {
-        console.error('Error submitting employee form:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to submit employee data', details: error.message });
+      console.error('Error submitting form:', error.message);
+      return res.status(500).json({ error: 'Failed to submit form data' });
     }
+  });
 });
 
 app.get('/api/onboarding', async (req, res) => {
-    try {
-        console.log('Fetching onboarding records...');
-        const [rows] = await pool.query(`
-            SELECT id, full_name AS fullName, emp_id AS empId, email, department, job_role AS jobRole, job_start_date AS jobStartDate, status
-            FROM employees
-        `);
-        console.log(`Fetched ${rows.length} onboarding records`);
-        res.status(200).json(rows);
-    } catch (error) {
-        console.error('Error fetching onboarding records:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to fetch onboarding records', details: error.message });
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    const status = req.query.status;
+
+    let query = 'SELECT * FROM onboarding_records';
+    let params = [];
+    let paramCount = 1;
+
+    if (status) {
+      query += ` WHERE status = $${paramCount++}`;
+      params.push(status);
     }
+
+    query += ` ORDER BY created_at DESC LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+    params.push(limit, offset);
+
+    const result = await pool.query(query, params);
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) FROM onboarding_records${status ? ' WHERE status = $1' : ''}`,
+      status ? [status] : []
+    );
+    const total = parseInt(totalResult.rows[0].count);
+
+    res.json({
+      data: result.rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    res.status(500).json({ error: 'Failed to fetch records' });
+  }
 });
 
 app.get('/api/onboarding/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        console.log(`Fetching onboarding record with ID: ${id}`);
-        const [rows] = await pool.query(`
-            SELECT
-                id, full_name AS fullName, emp_id AS empId, email, phone, dob,
-                street_address AS streetAddress, city, state, zip_code AS zipCode,
-                bank_name AS bankName, mobile_number AS mobileNumber, account_number AS accountNumber, ifsc_number AS ifscNumber,
-                prev_company_name AS prevCompanyName, prev_job_role AS prevJobRole, prev_employment_start AS prevEmploymentStart, prev_employment_end AS prevEmploymentEnd,
-                experience_letter_name AS experienceLetterName,
-                ssc_institution AS sscInstitution, ssc_year AS sscYear, ssc_certificate_name AS sscCertificateName,
-                inter_institution AS interInstitution, inter_year AS interYear, inter_certificate_name AS interCertificateName,
-                degree, institution, graduation_year AS graduationYear, degree_certificate_name AS degreeCertificateName,
-                emergency_contact_name AS emergencyContactName, emergency_contact_relationship AS emergencyContactRelationship,
-                emergency_contact_phone AS emergencyContactPhone, emergency_contact_address AS emergencyContactAddress,
-                job_role AS jobRole, job_start_date AS jobStartDate, department, profile_pic_name AS profilePicName, id_proof_name AS idProofName,
-                status
-            FROM employees
-            WHERE id = ?
-        `, [id]);
-        if (rows.length === 0) {
-            console.log(`No record found with ID: ${id}`);
-            return res.status(404).json({ error: 'Record not found' });
-        }
-        console.log(`Fetched record with ID: ${id}`);
-        res.status(200).json(rows[0]);
-    } catch (error) {
-        console.error('Error fetching onboarding record:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to fetch onboarding record', details: error.message });
+  try {
+    const result = await pool.query('SELECT * FROM onboarding_records WHERE id = $1', [req.params.id]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Record not found' });
     }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching record:', error);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
 });
 
-app.patch('/api/onboarding/:id', async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-    if (!['Pending', 'Active', 'Rejected'].includes(status)) {
-        return res.status(400).json({ error: 'Invalid status' });
-    }
-    try {
-        console.log(`Updating status for ID: ${id} to ${status}`);
-        const [result] = await pool.query(
-            `UPDATE employees SET status = ? WHERE id = ?`,
-            [status, id]
-        );
-        if (result.affectedRows === 0) {
-            console.log(`No record found with ID: ${id}`);
-            return res.status(404).json({ error: 'Record not found' });
-        }
-        console.log(`Status updated for ID: ${id}`);
-        res.status(200).json({ message: 'Status updated successfully' });
-    } catch (error) {
-        console.error('Error updating status:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to update status', details: error.message });
-    }
+app.get('/api/employees/active', async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM onboarding_records WHERE status = 'Active'");
+    res.json({ data: result.rows });
+  } catch (error) {
+    console.error('Error fetching active employees:', error);
+    res.status(500).json({ error: 'Failed to fetch active employees' });
+  }
 });
 
 app.get('/api/onboarding/:id/file/:field', async (req, res) => {
+  try {
     const { id, field } = req.params;
-    const validFields = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
-    if (!validFields.includes(field)) {
-        return res.status(400).json({ error: 'Invalid file field' });
-    }
-    try {
-        console.log(`Serving file for ID: ${id}, field: ${field}`);
-        const [rows] = await pool.query(
-            `SELECT ${field}_name AS fileName FROM employees WHERE id = ?`,
-            [id]
-        );
-        if (rows.length === 0 || !rows[0].fileName) {
-            console.log(`No file found for ID: ${id}, field: ${field}`);
-            return res.status(404).json({ error: 'File not found' });
-        }
-        const filePath = path.join(uploadDir, rows[0].fileName);
-        if (!fs.existsSync(filePath)) {
-            console.log(`File not found on server: ${filePath}`);
-            return res.status(404).json({ error: 'File not found on server' });
-        }
-        const mimeType = getMimeType(rows[0].fileName);
-        res.setHeader('Content-Type', mimeType);
-        res.download(filePath, rows[0].fileName);
-    } catch (error) {
-        console.error('Error serving file:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to serve file', details: error.message });
-    }
-});
-
-function getMimeType(fileName) {
-    if (!fileName) return 'application/octet-stream';
-    const ext = path.extname(fileName).toLowerCase().slice(1);
-    const mimeTypes = {
-        jpg: 'image/jpeg',
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        pdf: 'application/pdf',
-        doc: 'application/msword',
-        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    const fieldMap = {
+      profilePic: 'profile_pic_path',
+      idProof: 'id_proof_path',
+      sscCertificate: 'ssc_certificate_path',
+      interCertificate: 'inter_certificate_path',
+      degreeCertificate: 'degree_certificate_path',
+      experienceLetter: 'experience_letter_path'
     };
-    return mimeTypes[ext] || 'application/octet-stream';
-}
 
-app.post('/submit-offboarding', async (req, res) => {
-    const {
-        full_name, emp_id, position, department,
-        feedback, final_salary, bonus, acknowledgment, status
-    } = req.body;
-
-    try {
-        console.log('Inserting offboarding data:', { full_name, emp_id, department });
-        const [result] = await pool.query(
-            `INSERT INTO offboarding_records (
-                full_name, emp_id, position, department,
-                feedback, final_salary, bonus, acknowledgment, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                full_name, emp_id, position, department,
-                feedback, final_salary, bonus, acknowledgment, status
-            ]
-        );
-        console.log(`Offboarding data inserted with ID: ${result.insertId}`);
-        res.status(200).json({ message: 'Offboarding data submitted successfully', id: result.insertId });
-    } catch (error) {
-        console.error('Error submitting offboarding form:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to submit offboarding data', details: error.message });
+    const dbField = fieldMap[field];
+    if (!dbField) {
+      return res.status(400).json({ error: 'Invalid file field' });
     }
-});
 
-app.get('/offboarding-records', async (req, res) => {
-    try {
-        console.log('Fetching offboarding records...');
-        const [rows] = await pool.query('SELECT * FROM offboarding_records');
-        console.log(`Fetched ${rows.length} offboarding records`);
-        res.status(200).json(rows);
-    } catch (error) {
-        console.error('Error fetching offboarding records:', error.message, error.stack);
-        res.status(500).json({ error: 'Failed to fetch offboarding records', details: error.message });
+    const result = await pool.query(`SELECT ${dbField} FROM onboarding_records WHERE id = $1`, [id]);
+    if (result.rows.length === 0 || !result.rows[0][dbField]) {
+      return res.status(404).json({ error: 'File not found' });
     }
+
+    const filePath = result.rows[0][dbField];
+    res.sendFile(path.resolve(filePath));
+  } catch (error) {
+    console.error('Error serving file:', error);
+    res.status(500).json({ error: 'Failed to serve file' });
+  }
 });
 
-app.use('/Uploads', express.static(uploadDir));
+app.patch('/api/onboarding/:id', async (req, res) => {
+  try {
+    if (!req.body.status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
 
-app.use((err, req, res, next) => {
-    console.error('Server error:', err.message, err.stack);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
+    const updateResult = await pool.query(
+      'UPDATE onboarding_records SET status = $1 WHERE id = $2 RETURNING *',
+      [req.body.status, req.params.id]
+    );
+
+    if (updateResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Record not found' });
+    }
+
+    res.json(updateResult.rows[0]);
+  } catch (error) {
+    console.error('Error updating record:', error);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log('Serving static files from:', path.join(__dirname, 'public'));
+  console.log(`Server running on http://localhost:${PORT}`);
 });

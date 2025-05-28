@@ -812,7 +812,7 @@ function displayRecords(records) {
     noDataMessage.style.display = 'none';
     records.forEach(record => {
         const row = document.createElement('tr');
-        const initial = record.fullName ? record.fullName.charAt(0).toUpperCase() : '?';
+        const initial = record.full_name ? record.full_name.charAt(0).toUpperCase() : '?';
 
         const employeeCell = document.createElement('td');
         employeeCell.className = 'employee-cell';
@@ -824,7 +824,7 @@ function displayRecords(records) {
 
         const detailsDiv = document.createElement('div');
         detailsDiv.className = 'employee-details';
-        detailsDiv.textContent = record.fullName || 'N/A';
+        detailsDiv.textContent = record.full_name || 'N/A';
 
         const emailSpan = document.createElement('span');
         emailSpan.textContent = record.email || 'N/A';
@@ -835,7 +835,7 @@ function displayRecords(records) {
 
         const empIdCell = document.createElement('td');
         empIdCell.setAttribute('data-label', 'Employee ID');
-        empIdCell.textContent = record.empId || 'N/A';
+        empIdCell.textContent = record.emp_id || 'N/A';
 
         const deptCell = document.createElement('td');
         deptCell.setAttribute('data-label', 'Department');
@@ -843,11 +843,11 @@ function displayRecords(records) {
 
         const jobRoleCell = document.createElement('td');
         jobRoleCell.setAttribute('data-label', 'Job Role');
-        jobRoleCell.textContent = record.jobRole || 'N/A';
+        jobRoleCell.textContent = record.job_role || 'N/A';
 
         const startDateCell = document.createElement('td');
         startDateCell.setAttribute('data-label', 'Start Date');
-        startDateCell.textContent = formatDate(record.jobStartDate);
+        startDateCell.textContent = formatDate(record.job_start_date);
 
         const statusCell = document.createElement('td');
         statusCell.setAttribute('data-label', 'Status');
@@ -884,11 +884,14 @@ async function loadData() {
     noDataMessage.textContent = 'Loading...';
     try {
         const response = await fetch('http://localhost:3000/api/onboarding');
+        console.log('Response status:', response.status);
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
-        allRecords = await response.json();
+        const responseData = await response.json();
+        console.log('Fetched data:', responseData);
+        allRecords = responseData.data; // Access the 'data' property
         displayRecords(allRecords);
         populateDepartmentFilter(allRecords);
     } catch (error) {
@@ -924,10 +927,10 @@ function filterTable() {
 
     const filteredRecords = allRecords.filter(record => {
         const matchesSearch = 
-            (record.fullName && record.fullName.toLowerCase().includes(searchTerm)) ||
-            (record.empId && record.empId.toLowerCase().includes(searchTerm)) ||
+            (record.full_name && record.full_name.toLowerCase().includes(searchTerm)) ||
+            (record.emp_id && record.emp_id.toLowerCase().includes(searchTerm)) ||
             (record.department && record.department.toLowerCase().includes(searchTerm)) ||
-            (record.jobRole && record.jobRole.toLowerCase().includes(searchTerm));
+            (record.job_role && record.job_role.toLowerCase().includes(searchTerm));
         
         const matchesStatus = !statusFilter || (record.status && record.status === statusFilter);
         const matchesDepartment = !departmentFilter || (record.department && record.department === departmentFilter);
@@ -939,189 +942,201 @@ function filterTable() {
 }
 
 async function viewRecord(id) {
-    currentIndex = id;
-    try {
-        const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-        const record = await response.json();
-        const modalBody = document.getElementById('view-modal-body');
-        const fileFields = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
-        modalBody.innerHTML = `
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-user"></i> Personal Information</div>
-                <p>
-                    <strong><i class="fas fa-user detail-icon"></i> Full Name</strong>
-                    <span class="detail-value">${record.fullName || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-id-badge detail-icon"></i> Employee ID</strong>
-                    <span class="detail-value">${record.empId || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-envelope detail-icon"></i> Email</strong>
-                    <span class="detail-value">${record.email || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
-                    <span class="detail-value">${record.phone || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Date of Birth</strong>
-                    <span class="detail-value">${formatDate(record.dob)}</span>
-                </p>
-                ${fileFields.map(field => `
-                    <p>
-                        <strong><i class="fas ${field === 'profilePic' ? 'fa-image' : field === 'idProof' ? 'fa-id-card' : 'fa-file-alt'} detail-icon"></i> ${field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</strong>
-                        <span class="detail-value">
-                            ${record[`${field}Name`] ? record[`${field}Name`] : 'N/A'}
-                            ${record[`${field}Name`] ? `
-                            <span class="file-actions">
-                                <button class="file-btn view" onclick="viewFile(${id}, '${field}')"><i class="fas fa-eye"></i> View</button>
-                                <button class="file-btn download" onclick="downloadFile(${id}, '${field}')"><i class="fas fa-download"></i> Download</button>
-                            </span>` : ''}
-                        </span>
-                    </p>
-                `).join('')}
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-map-marker-alt"></i> Address</div>
-                <p>
-                    <strong><i class="fas fa-road detail-icon"></i> Street Address</strong>
-                    <span class="detail-value">${record.streetAddress || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-city detail-icon"></i> City</strong>
-                    <span class="detail-value">${record.city || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-flag detail-icon"></i> State</strong>
-                    <span class="detail-value">${record.state || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-mail-bulk detail-icon"></i> Zip Code</strong>
-                    <span class="detail-value">${record.zipCode || 'N/A'}</span>
-                </p>
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-university"></i> Banking Details</div>
-                <p>
-                    <strong><i class="fas fa-university detail-icon"></i> Bank Name</strong>
-                    <span class="detail-value">${record.bankName || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-phone detail-icon"></i> Mobile Number</strong>
-                    <span class="detail-value">${record.mobileNumber || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-credit-card detail-icon"></i> Account Number</strong>
-                    <span class="detail-value">${record.accountNumber || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-code detail-icon"></i> IFSC Number</strong>
-                    <span class="detail-value">${record.ifscNumber || 'N/A'}</span>
-                </p>
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-briefcase"></i> Experience</div>
-                <p>
-                    <strong><i class="fas fa-building detail-icon"></i> Previous Company Name</strong>
-                    <span class="detail-value">${record.prevCompanyName || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-user-tie detail-icon"></i> Previous Job Role</strong>
-                    <span class="detail-value">${record.prevJobRole || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
-                    <span class="detail-value">${formatDate(record.prevEmploymentStart)}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> End Date</strong>
-                    <span class="detail-value">${formatDate(record.prevEmploymentEnd)}</span>
-                </p>
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-graduation-cap"></i> Education Details</div>
-                <p>
-                    <strong><i class="fas fa-school detail-icon"></i> SSC Institution</strong>
-                    <span class="detail-value">${record.sscInstitution || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> SSC Year</strong>
-                    <span class="detail-value">${record.sscYear || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-school detail-icon"></i> Intermediate Institution</strong>
-                    <span class="detail-value">${record.interInstitution || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Intermediate Year</strong>
-                    <span class="detail-value">${record.interYear || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-graduation-cap detail-icon"></i> Highest Degree</strong>
-                    <span class="detail-value">${record.degree || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-university detail-icon"></i> Institution</strong>
-                    <span class="detail-value">${record.institution || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Graduation Year</strong>
-                    <span class="detail-value">${record.graduationYear || 'N/A'}</span>
-                </p>
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-ambulance"></i> Emergency Contact Details</div>
-                <p>
-                    <strong><i class="fas fa-user detail-icon"></i> Contact Name</strong>
-                    <span class="detail-value">${record.emergencyContactName || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-users detail-icon"></i> Relationship</strong>
-                    <span class="detail-value">${record.emergencyContactRelationship || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
-                    <span class="detail-value">${record.emergencyContactPhone || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-map-marker-alt detail-icon"></i> Address</strong>
-                    <span class="detail-value">${record.emergencyContactAddress || 'N/A'}</span>
-                </p>
-            </div>
-            <div class="detail-group">
-                <div class="detail-group-title"><i class="fas fa-briefcase"></i> Job Details</div>
-                <p>
-                    <strong><i class="fas fa-user-tie detail-icon"></i> Job Role</strong>
-                    <span class="detail-value">${record.jobRole || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
-                    <span class="detail-value">${formatDate(record.jobStartDate)}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-building detail-icon"></i> Department</strong>
-                    <span class="detail-value">${record.department || 'N/A'}</span>
-                </p>
-                <p>
-                    <strong><i class="fas fa-check-circle detail-icon"></i> Status</strong>
-                    <span class="detail-value">${record.status || 'N/A'}</span>
-                </p>
-            </div>
-        `;
-        const acceptBtn = document.getElementById('acceptBtn');
-        const rejectBtn = document.getElementById('rejectBtn');
-        acceptBtn.style.display = record.status === 'Pending' ? 'inline-flex' : 'none';
-        rejectBtn.style.display = record.status === 'Pending' ? 'inline-flex' : 'none';
-        openModal('view-modal');
-    } catch (error) {
-        console.error('Error fetching record:', error.message, error.stack);
-        alert(`Error loading record: ${error.message}`);
+  currentIndex = id;
+  try {
+    const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
+    const record = await response.json();
+    const modalBody = document.getElementById('view-modal-body');
+    const fileFields = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
+    modalBody.innerHTML = `
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-user"></i> Personal Information</div>
+        <p>
+          <strong><i class="fas fa-user detail-icon"></i> Full Name</strong>
+          <span class="detail-value">${record.full_name || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-id-badge detail-icon"></i> Employee ID</strong>
+          <span class="detail-value">${record.emp_id || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-envelope detail-icon"></i> Email</strong>
+          <span class="detail-value">${record.email || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
+          <span class="detail-value">${record.phone || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> Date of Birth</strong>
+          <span class="detail-value">${formatDate(record.dob)}</span>
+        </p>
+        ${fileFields
+          .map((field) => {
+            const dbField = field === 'profilePic' ? 'profile_pic_name' :
+                           field === 'idProof' ? 'id_proof_name' :
+                           field === 'sscCertificate' ? 'ssc_certificate_name' :
+                           field === 'interCertificate' ? 'inter_certificate_name' :
+                           field === 'degreeCertificate' ? 'degree_certificate_name' :
+                           'experience_letter_name';
+            return `
+              <p>
+                <strong><i class="fas ${field === 'profilePic' ? 'fa-image' : field === 'idProof' ? 'fa-id-card' : 'fa-file-alt'} detail-icon"></i> ${field
+                  .replace(/([A-Z])/g, ' $1')
+                  .replace(/^./, (str) => str.toUpperCase())}</strong>
+                <span class="detail-value">
+                  ${record[dbField] ? record[dbField] : 'N/A'}
+                  ${record[dbField] ? `
+                    <span class="file-actions">
+                      <button class="file-btn view" onclick="viewFile(${id}, '${field}')"><i class="fas fa-eye"></i> View</button>
+                      <button class="file-btn download" onclick="downloadFile(${id}, '${field}')"><i class="fas fa-download"></i> Download</button>
+                    </span>` : ''}
+                </span>
+              </p>
+            `;
+          })
+          .join('')}
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-map-marker-alt"></i> Address</div>
+        <p>
+          <strong><i class="fas fa-road detail-icon"></i> Street Address</strong>
+          <span class="detail-value">${record.street_address || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-city detail-icon"></i> City</strong>
+          <span class="detail-value">${record.city || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-flag detail-icon"></i> State</strong>
+          <span class="detail-value">${record.state || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-mail-bulk detail-icon"></i> Zip Code</strong>
+          <span class="detail-value">${record.zip_code || 'N/A'}</span>
+        </p>
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-university"></i> Banking Details</div>
+        <p>
+          <strong><i class="fas fa-university detail-icon"></i> Bank Name</strong>
+          <span class="detail-value">${record.bank_name || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-phone detail-icon"></i> Mobile Number</strong>
+          <span class="detail-value">${record.mobile_number || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-credit-card detail-icon"></i> Account Number</strong>
+          <span class="detail-value">${record.account_number || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-code detail-icon"></i> IFSC Number</strong>
+          <span class="detail-value">${record.ifsc_number || 'N/A'}</span>
+        </p>
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-briefcase"></i> Experience</div>
+        <p>
+          <strong><i class="fas fa-building detail-icon"></i> Previous Company Name</strong>
+          <span class="detail-value">${record.prev_company_name || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-user-tie detail-icon"></i> Previous Job Role</strong>
+          <span class="detail-value">${record.prev_job_role || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
+          <span class="detail-value">${formatDate(record.prev_employment_start)}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> End Date</strong>
+          <span class="detail-value">${formatDate(record.prev_employment_end)}</span>
+        </p>
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-graduation-cap"></i> Education Details</div>
+        <p>
+          <strong><i class="fas fa-school detail-icon"></i> SSC Institution</strong>
+          <span class="detail-value">${record.ssc_institution || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> SSC Year</strong>
+          <span class="detail-value">${record.ssc_year || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-school detail-icon"></i> Intermediate Institution</strong>
+          <span class="detail-value">${record.inter_institution || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> Intermediate Year</strong>
+          <span class="detail-value">${record.inter_year || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-graduation-cap detail-icon"></i> Highest Degree</strong>
+          <span class="detail-value">${record.degree || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-university detail-icon"></i> Institution</strong>
+          <span class="detail-value">${record.institution || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> Graduation Year</strong>
+          <span class="detail-value">${record.graduation_year || 'N/A'}</span>
+        </p>
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-ambulance"></i> Emergency Contact Details</div>
+        <p>
+          <strong><i class="fas fa-user detail-icon"></i> Contact Name</strong>
+          <span class="detail-value">${record.emergency_contact_name || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-users detail-icon"></i> Relationship</strong>
+          <span class="detail-value">${record.emergency_contact_relationship || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-phone detail-icon"></i> Phone Number</strong>
+          <span class="detail-value">${record.emergency_contact_phone || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-map-marker-alt detail-icon"></i> Address</strong>
+          <span class="detail-value">${record.emergency_contact_address || 'N/A'}</span>
+        </p>
+      </div>
+      <div class="detail-group">
+        <div class="detail-group-title"><i class="fas fa-briefcase"></i> Job Details</div>
+        <p>
+          <strong><i class="fas fa-user-tie detail-icon"></i> Job Role</strong>
+          <span class="detail-value">${record.job_role || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-calendar-alt detail-icon"></i> Start Date</strong>
+          <span class="detail-value">${formatDate(record.job_start_date)}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-building detail-icon"></i> Department</strong>
+          <span class="detail-value">${record.department || 'N/A'}</span>
+        </p>
+        <p>
+          <strong><i class="fas fa-check-circle detail-icon"></i> Status</strong>
+          <span class="detail-value">${record.status || 'N/A'}</span>
+        </p>
+      </div>
+    `;
+    const acceptBtn = document.getElementById('acceptBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    acceptBtn.style.display = record.status === 'Pending' ? 'inline-block' : 'none';
+    rejectBtn.style.display = record.status === 'Pending' ? 'inline-block' : 'none';
+    openModal('view-modal');
+  } catch (error) {
+    console.error('Error fetching record:', error.message, error.stack);
+    alert(`Error loading record: ${error.message}`);
+  }
 }
 
 async function viewFile(id, field) {
@@ -1131,7 +1146,13 @@ async function viewFile(id, field) {
             throw new Error(`HTTP ${response.status}: ${await response.text()}`);
         }
         const record = await response.json();
-        const fileName = record[`${field}Name`];
+        const dbField = field === 'profilePic' ? 'profile_pic_name' :
+                       field === 'idProof' ? 'id_proof_name' :
+                       field === 'sscCertificate' ? 'ssc_certificate_name' :
+                       field === 'interCertificate' ? 'inter_certificate_name' :
+                       field === 'degreeCertificate' ? 'degree_certificate_name' :
+                       'experience_letter_name';
+        const fileName = record[dbField];
         const mimeType = getMimeType(fileName);
         if (!fileName) {
             throw new Error('No file available to view.');

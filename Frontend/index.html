@@ -730,318 +730,352 @@
             </div>
         </form>
     </div>
+<script>
+    const today = new Date().toISOString().split('T')[0];
 
-    <script>
-        const today = new Date().toISOString().split('T')[0];
+function enforceSingleSpace(input) {
+  const originalValue = input.value;
+  const newValue = originalValue.replace(/\s+/g, ' ');
+  if (originalValue !== newValue) {
+    input.value = newValue;
+  }
+}
 
-        function enforceSingleSpace(input) {
-            const cursorPos = input.selectionStart;
-            const originalValue = input.value;
-            let newValue = originalValue.replace(/\s+/g, ' ');
-            if (originalValue !== newValue) {
-                input.value = newValue;
-                const lengthDiff = originalValue.length - newValue.length;
-                const newCursorPos = Math.max(0, cursorPos - lengthDiff);
-                input.setSelectionRange(newCursorPos, newCursorPos);
-            }
-        }
+function trimSpaces(input) {
+  const value = input.value.trim().replace(/\s+/g, ' ');
+  if (input.value !== value) {
+    input.value = value;
+  }
+}
 
-        function trimSpaces(input) {
-            const cursorPos = input.selectionStart;
-            let value = input.value.trim().replace(/\s+/g, ' ');
-            let newCursorPos = cursorPos;
-            if (input.value.length !== value.length) {
-                newCursorPos = Math.max(0, cursorPos - (input.value.length - value.length));
-            }
-            input.value = value;
-            input.setSelectionRange(newCursorPos, newCursorPos);
-        }
+function validateDOB(dobField) {
+  const errorElement = document.getElementById('dob-error');
+  if (!dobField.value) {
+    errorElement.textContent = 'Date of Birth is required';
+    return false;
+  }
+  const dob = new Date(dobField.value);
+  const minDate = new Date('1950-01-01');
+  const maxDate = new Date('2005-12-31');
+  if (dob < minDate || dob > maxDate) {
+    errorElement.textContent = 'Date of Birth must be between 01/01/1950 and 12/31/2005';
+    return false;
+  }
+  errorElement.textContent = '';
+  return true;
+}
 
-        function validateDOB(dobField) {
-            const errorElement = document.getElementById('dob-error');
-            if (!dobField.value) {
-                errorElement.textContent = 'Date of Birth is required';
-                return false;
-            }
-            const dob = new Date(dobField.value);
-            const minDate = new Date('1950-01-01');
-            const maxDate = new Date('2005-12-31');
-            if (dob < minDate || dob > maxDate) {
-                errorElement.textContent = 'Date of Birth must be between 01/01/1950 and 12/31/2005';
-                return false;
-            }
-            errorElement.textContent = '';
-            return true;
-        }
+function validateEducationYear(fieldId) {
+  const field = document.getElementById(fieldId);
+  const errorElement = document.getElementById(`${fieldId}-error`);
+  const dobField = document.getElementById('dob');
+  if (!field.value) return true;
+  const currentYear = new Date().getFullYear();
+  if (parseInt(field.value) > currentYear) {
+    errorElement.textContent = 'Year cannot be in the future';
+    return false;
+  }
+  if (dobField.value) {
+    const birthYear = new Date(dobField.value).getFullYear();
+    const minYear = birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18);
+    if (parseInt(field.value) <= birthYear) {
+      errorElement.textContent = 'Year must be after birth year';
+      return false;
+    }
+    if (parseInt(field.value) < minYear) {
+      errorElement.textContent = `Year must be at least ${minYear}`;
+      return false;
+    }
+  }
+  if (fieldId === 'interYear' && document.getElementById('sscYear').value) {
+    const sscYear = parseInt(document.getElementById('sscYear').value);
+    if (parseInt(field.value) <= sscYear) {
+      errorElement.textContent = 'Intermediate year must be after SSC year';
+      return false;
+    }
+  }
+  if (fieldId === 'graduationYear' && document.getElementById('interYear').value) {
+    const interYear = parseInt(document.getElementById('interYear').value);
+    if (parseInt(field.value) <= interYear) {
+      errorElement.textContent = 'Graduation year must be after Intermediate year';
+      return false;
+    }
+  }
+  errorElement.textContent = '';
+  return true;
+}
 
-        function validateEducationYear(fieldId) {
-            const field = document.getElementById(fieldId);
-            const errorElement = document.getElementById(`${fieldId}-error`);
-            const dobField = document.getElementById('dob');
-            if (!field.value) return true;
-            const currentYear = new Date().getFullYear();
-            if (parseInt(field.value) > currentYear) {
-                errorElement.textContent = 'Year cannot be in the future';
-                return false;
-            }
-            if (dobField.value) {
-                const birthYear = new Date(dobField.value).getFullYear();
-                const minYear = birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18);
-                if (parseInt(field.value) <= birthYear) {
-                    errorElement.textContent = 'Year must be after birth year';
-                    return false;
-                }
-                if (parseInt(field.value) < minYear) {
-                    errorElement.textContent = `Year must be at least ${minYear}`;
-                    return false;
-                }
-            }
-            if (fieldId === 'interYear' && document.getElementById('sscYear').value) {
-                const sscYear = parseInt(document.getElementById('sscYear').value);
-                if (parseInt(field.value) <= sscYear) {
-                    errorElement.textContent = 'Intermediate year must be after SSC year';
-                    return false;
-                }
-            }
-            if (fieldId === 'graduationYear' && document.getElementById('interYear').value) {
-                const interYear = parseInt(document.getElementById('interYear').value);
-                if (parseInt(field.value) <= interYear) {
-                    errorElement.textContent = 'Graduation year must be after Intermediate year';
-                    return false;
-                }
-            }
-            errorElement.textContent = '';
-            return true;
-        }
+function validateEmploymentDates() {
+  const startField = document.getElementById('prevEmploymentStart');
+  const endField = document.getElementById('prevEmploymentEnd');
+  const startError = document.getElementById('prevEmploymentStart-error');
+  const endError = document.getElementById('prevEmploymentEnd-error');
+  startError.textContent = '';
+  endError.textContent = '';
+  if (startField.value && endField.value) {
+    const startDate = new Date(startField.value);
+    const endDate = new Date(endField.value);
+    if (endDate <= startDate) {
+      endError.textContent = 'End date must be after start date';
+      return false;
+    }
+  }
+  return true;
+}
 
-        function validateEmploymentDates() {
-            const startField = document.getElementById('prevEmploymentStart');
-            const endField = document.getElementById('prevEmploymentEnd');
-            const startError = document.getElementById('prevEmploymentStart-error');
-            const endError = document.getElementById('prevEmploymentEnd-error');
-            startError.textContent = '';
-            endError.textContent = '';
-            if (startField.value && endField.value) {
-                const startDate = new Date(startField.value);
-                const endDate = new Date(endField.value);
-                if (endDate <= startDate) {
-                    endError.textContent = 'End date must be after start date';
-                    return false;
-                }
-            }
-            return true;
-        }
+function validateField(field) {
+  const errorElement = document.getElementById(`${field.id}-error`);
+  errorElement.textContent = '';
+  if (field.type === 'checkbox' && field.required && !field.checked) {
+    errorElement.textContent = 'You must agree to the declaration';
+    return false;
+  }
+  if (field.required && !field.value.trim() && field.type !== 'checkbox') {
+    errorElement.textContent = 'This field is required';
+    return false;
+  }
+  if (!field.required && !field.value.trim() && field.type !== 'checkbox') {
+    return true;
+  }
+  if (field.type !== 'checkbox' && /(^ )|(  )|( $)/.test(field.value)) {
+    errorElement.textContent = 'Only single space between words allowed';
+    return false;
+  }
+  if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
+    errorElement.textContent = field.title || 'Invalid format';
+    return false;
+  }
+  if (field.minLength && field.value.length < field.minLength) {
+    errorElement.textContent = `Minimum ${field.minLength} characters required`;
+    return false;
+  }
+  if (field.id === 'phone' || field.id === 'mobileNumber' || field.id === 'emergencyContactPhone') {
+    if (/^0+$/.test(field.value)) {
+      errorElement.textContent = 'Cannot be all zeros';
+      return false;
+    }
+    if (/(\d)\1{4}/.test(field.value)) {
+      errorElement.textContent = 'Cannot have 5+ repeated digits';
+      return false;
+    }
+  }
+  if (field.id === 'zipCode' && /^0+$/.test(field.value)) {
+    errorElement.textContent = 'Cannot be all zeros';
+    return false;
+  }
+  if (field.id === 'confirmAccountNumber') {
+    const accountNumber = document.getElementById('accountNumber').value;
+    if (field.value !== accountNumber) {
+      errorElement.textContent = 'Account numbers must match';
+      return false;
+    }
+  }
+  if (field.id === 'sscYear' || field.id === 'interYear' || field.id === 'graduationYear') {
+    return validateEducationYear(field.id);
+  }
+  if (field.id === 'jobStartDate') {
+    const todayDate = new Date().toISOString().split('T')[0];
+    if (field.value !== todayDate) {
+      errorElement.textContent = 'Job start date must be today';
+      return false;
+    }
+  }
+  return true;
+}
 
-        function validateField(field) {
-            const errorElement = document.getElementById(`${field.id}-error`);
-            errorElement.textContent = '';
-            if (field.type === 'checkbox' && field.required && !field.checked) {
-                errorElement.textContent = 'You must agree to the declaration';
-                return false;
-            }
-            if (field.required && !field.value.trim() && field.type !== 'checkbox') {
-                errorElement.textContent = 'This field is required';
-                return false;
-            }
-            if (!field.required && !field.value.trim() && field.type !== 'checkbox') {
-                return true;
-            }
-            if (field.type !== 'checkbox' && /(^ )|(  )|( $)/.test(field.value)) {
-                errorElement.textContent = 'Only single space between words allowed';
-                return false;
-            }
-            if (field.pattern && !new RegExp(field.pattern).test(field.value)) {
-                errorElement.textContent = field.title || 'Invalid format';
-                return false;
-            }
-            if (field.minLength && field.value.length < field.minLength) {
-                errorElement.textContent = `Minimum ${field.minLength} characters required`;
-                return false;
-            }
-            if (field.id === 'phone' || field.id === 'mobileNumber' || field.id === 'emergencyContactPhone') {
-                if (/^0+$/.test(field.value)) {
-                    errorElement.textContent = 'Cannot be all zeros';
-                    return false;
-                }
-                if (/(\d)\1{4}/.test(field.value)) {
-                    errorElement.textContent = 'Cannot have 5+ repeated digits';
-                    return false;
-                }
-            }
-            if (field.id === 'zipCode' && /^0+$/.test(field.value)) {
-                errorElement.textContent = 'Cannot be all zeros';
-                return false;
-            }
-            if (field.id === 'confirmAccountNumber') {
-                const accountNumber = document.getElementById('accountNumber').value;
-                if (field.value !== accountNumber) {
-                    errorElement.textContent = 'Account numbers must match';
-                    return false;
-                }
-            }
-            if (field.id === 'sscYear' || field.id === 'interYear' || field.id === 'graduationYear') {
-                return validateEducationYear(field.id);
-            }
-            if (field.id === 'jobStartDate') {
-                const todayDate = new Date().toISOString().split('T')[0];
-                if (field.value !== todayDate) {
-                    errorElement.textContent = 'Job start date must be today';
-                    return false;
-                }
-            }
-            return true;
-        }
+function validateFileInput(fileInput) {
+  const file = fileInput.files[0];
+  const errorElement = document.getElementById(`${fileInput.id}-error`);
+  const allowedTypes = {
+    profilePic: ['image/jpeg', 'image/png'],
+    idProof: ['application/pdf', 'image/jpeg', 'image/png'],
+    sscCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    interCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    degreeCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    experienceLetter: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  };
+  const maxSizeMB = fileInput.id === 'profilePic' ? 2 : 5;
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  if (!file && fileInput.required) {
+    errorElement.textContent = 'Please upload a file';
+    return false;
+  }
+  if (file) {
+    if (!allowedTypes[fileInput.id].includes(file.type)) {
+      errorElement.textContent = `Invalid file type. Allowed: ${allowedTypes[fileInput.id].map(type => type.split('/')[1].toUpperCase()).join(', ')}`;
+      return false;
+    }
+    if (file.size > maxSizeBytes) {
+      errorElement.textContent = `File size exceeds ${maxSizeMB}MB limit`;
+      return false;
+    }
+  }
+  errorElement.textContent = '';
+  return true;
+}
 
-        function validateFileInput(fileInput) {
-            const file = fileInput.files[0];
-            const errorElement = document.getElementById(`${fileInput.id}-error`);
-            const allowedTypes = {
-                profilePic: ['image/jpeg', 'image/png'],
-                idProof: ['application/pdf', 'image/jpeg', 'image/png'],
-                sscCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                interCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                degreeCertificate: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                experienceLetter: ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
-            };
-            const maxSizeMB = fileInput.id === 'profilePic' ? 2 : 5;
-            const maxSizeBytes = maxSizeMB * 1024 * 1024;
-            if (!file && fileInput.required) {
-                errorElement.textContent = 'Please upload a file';
-                return false;
-            }
-            if (file) {
-                if (!allowedTypes[fileInput.id].includes(file.type)) {
-                    errorElement.textContent = `Invalid file type. Allowed: ${allowedTypes[fileInput.id].map(type => type.split('/')[1].toUpperCase()).join(', ')}`;
-                    return false;
-                }
-                if (file.size > maxSizeBytes) {
-                    errorElement.textContent = `File size exceeds ${maxSizeMB}MB limit`;
-                    return false;
-                }
-            }
-            errorElement.textContent = '';
-            return true;
-        }
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('onboardingForm');
+  document.getElementById('jobStartDate').setAttribute('max', today);
+  document.getElementById('jobStartDate').value = today;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('onboardingForm');
-            document.getElementById('jobStartDate').setAttribute('max', today);
-            document.getElementById('jobStartDate').value = today;
-            const formControls = form.querySelectorAll('input, select, textarea');
-            formControls.forEach(control => {
-                control.addEventListener('input', function() {
-                    validateField(this);
-                    if (this.id === 'accountNumber') {
-                        const confirmField = document.getElementById('confirmAccountNumber');
-                        if (confirmField.value) {
-                            validateField(confirmField);
-                        }
-                    }
-                    if (this.id === 'dob' && this.value) {
-                        const birthYear = new Date(this.value).getFullYear();
-                        const educationFields = ['sscYear', 'interYear', 'graduationYear'];
-                        educationFields.forEach(fieldId => {
-                            const field = document.getElementById(fieldId);
-                            field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
-                            if (field.value) {
-                                validateField(field);
-                            }
-                        });
-                    }
-                    if (this.type === 'text' || this.type === 'email') {
-                        this.value = this.value.trimStart();
-                    }
-                });
-                control.addEventListener('blur', function() {
-                    validateField(this);
-                    if (this.type === 'text' || this.type === 'email') {
-                        this.value = this.value.trim().replace(/\s+/g, ' ');
-                    }
-                });
-            });
-            document.getElementById('dob').addEventListener('change', function() {
-                validateField(this);
-                const dob = this.value;
-                const educationFields = ['sscYear', 'interYear', 'graduationYear'];
-                if (dob) {
-                    const birthYear = new Date(dob).getFullYear();
-                    educationFields.forEach(fieldId => {
-                        const field = document.getElementById(fieldId);
-                        field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
-                        if (field.value) {
-                            validateField(field);
-                        }
-                    });
-                }
-            });
-            const fileInputs = ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'];
-            fileInputs.forEach(id => {
-                document.getElementById(id).addEventListener('change', function() {
-                    validateFileInput(this);
-                });
-            });
-
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault();
-                let isValid = true;
-                const fieldsToValidate = form.querySelectorAll('input, select, textarea');
-                fieldsToValidate.forEach(field => {
-                    if (fileInputs.includes(field.id)) {
-                        if (!validateFileInput(field)) {
-                            isValid = false;
-                        }
-                    } else if (!validateField(field)) {
-                        isValid = false;
-                    }
-                });
-                const accountNumber = document.getElementById('accountNumber').value;
-                const confirmAccountNumber = document.getElementById('confirmAccountNumber').value;
-                if (accountNumber !== confirmAccountNumber) {
-                    document.getElementById('confirmAccountNumber-error').textContent = 'Account numbers must match';
-                    isValid = false;
-                }
-                const jobStartDate = document.getElementById('jobStartDate').value;
-                if (jobStartDate !== today) {
-                    document.getElementById('jobStartDate-error').textContent = 'Job start date must be today';
-                    isValid = false;
-                }
-                if (!validateDOB(document.getElementById('dob'))) {
-                    isValid = false;
-                }
-                if (!validateEmploymentDates()) {
-                    isValid = false;
-                }
-                if (!isValid) {
-                    alert('Please correct the errors in the form before submitting.');
-                    return;
-                }
-
-                const formData = new FormData(form);
-                try {
-                    const response = await fetch('http://localhost:3000/api/employees', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to submit form data');
-                    }
-                    alert('Form submitted successfully!');
-                    form.reset();
-                    document.getElementById('jobStartDate').value = today;
-                    form.querySelectorAll('.error-message').forEach(error => error.textContent = '');
-                } catch (error) {
-                    console.error('Error submitting form:', error);
-                    alert(`Error submitting form: ${error.message}`);
-                }
-            });
-
-            form.addEventListener('reset', function() {
-                const errorMessages = form.querySelectorAll('.error-message');
-                errorMessages.forEach(error => error.textContent = '');
-                document.getElementById('jobStartDate').value = today;
-            });
+  const formControls = form.querySelectorAll('input, select, textarea');
+  formControls.forEach(control => {
+    control.addEventListener('input', function() {
+      if (this.type === 'text' || this.type === 'email') {
+        enforceSingleSpace(this); // Apply single space rule
+      }
+      validateField(this);
+      if (this.id === 'accountNumber') {
+        const confirmField = document.getElementById('confirmAccountNumber');
+        if (confirmField.value) validateField(confirmField);
+      }
+      if (this.id === 'dob' && this.value) {
+        const birthYear = new Date(this.value).getFullYear();
+        ['sscYear', 'interYear', 'graduationYear'].forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
+          if (field.value) validateField(field);
         });
-    </script>
+      }
+    });
+    control.addEventListener('blur', function() {
+      if (this.type === 'text' || this.type === 'email') {
+        trimSpaces(this); // Trim only on blur to avoid typing issues
+      }
+      validateField(this);
+    });
+  });
+
+  document.getElementById('dob').addEventListener('change', function() {
+    validateField(this);
+    if (this.value) {
+      const birthYear = new Date(this.value).getFullYear();
+      ['sscYear', 'interYear', 'graduationYear'].forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        field.setAttribute('min', birthYear + (fieldId === 'sscYear' ? 14 : fieldId === 'interYear' ? 16 : 18));
+        if (field.value) validateField(field);
+      });
+    }
+  });
+
+  ['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'].forEach(id => {
+    document.getElementById(id).addEventListener('change', function() {
+      validateFileInput(this);
+    });
+  });
+
+  form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    let isValid = true;
+    const fieldsToValidate = form.querySelectorAll('input, select, textarea');
+    fieldsToValidate.forEach(field => {
+      if (['profilePic', 'idProof', 'sscCertificate', 'interCertificate', 'degreeCertificate', 'experienceLetter'].includes(field.id)) {
+        if (!validateFileInput(field)) isValid = false;
+      } else if (!validateField(field)) {
+        isValid = false;
+      }
+    });
+
+    const accountNumber = document.getElementById('accountNumber').value;
+    const confirmAccountNumber = document.getElementById('confirmAccountNumber').value;
+    if (accountNumber !== confirmAccountNumber) {
+      document.getElementById('confirmAccountNumber-error').textContent = 'Account numbers must match';
+      isValid = false;
+    }
+
+    const jobStartDate = document.getElementById('jobStartDate').value;
+    if (jobStartDate !== today) {
+      document.getElementById('jobStartDate-error').textContent = 'Job start date must be today';
+      isValid = false;
+    }
+
+    if (!validateDOB(document.getElementById('dob'))) isValid = false;
+    if (!validateEmploymentDates()) isValid = false;
+
+    if (!isValid) {
+      alert('Please correct the errors in the form before submitting.');
+      return;
+    }
+
+    const formData = new FormData();
+    const getDateValue = (value) => value && value.trim() !== '' ? value : null;
+
+    // Basic Information
+    formData.append('empId', form.empId.value);
+    formData.append('fullName', form.fullName.value);
+    formData.append('email', form.email.value);
+    formData.append('phone', form.phone.value);
+    formData.append('department', form.department.value);
+    formData.append('jobRole', form.jobRole.value);
+    formData.append('jobStartDate', getDateValue(form.jobStartDate.value));
+    formData.append('streetAddress', form.streetAddress.value);
+    formData.append('city', form.city.value);
+    formData.append('state', form.state.value);
+    formData.append('zipCode', form.zipCode.value);
+    formData.append('dob', getDateValue(form.dob.value));
+
+    // Education Details
+    formData.append('sscInstitution', form.sscInstitution.value);
+    formData.append('sscYear', form.sscYear.value);
+    formData.append('interInstitution', form.interInstitution.value);
+    formData.append('interYear', form.interYear.value);
+    formData.append('degree', form.degree.value);
+    formData.append('institution', form.institution.value);
+    formData.append('graduationYear', form.graduationYear.value);
+
+    // Bank Details
+    formData.append('bankName', form.bankName.value);
+    formData.append('mobileNumber', form.mobileNumber.value);
+    formData.append('accountNumber', form.accountNumber.value);
+    formData.append('ifscNumber', form.ifscNumber.value);
+
+    // Experience Details
+    formData.append('prevCompanyName', form.prevCompanyName.value);
+    formData.append('prevJobRole', form.prevJobRole.value);
+    formData.append('prevEmploymentStart', getDateValue(form.prevEmploymentStart.value));
+    formData.append('prevEmploymentEnd', getDateValue(form.prevEmploymentEnd.value));
+
+    // Emergency Contact Details
+    formData.append('emergencyContactName', form.emergencyContactName.value);
+    formData.append('emergencyContactRelationship', form.emergencyContactRelationship.value);
+    formData.append('emergencyContactPhone', form.emergencyContactPhone.value);
+    formData.append('emergencyContactAddress', form.emergencyContactAddress.value);
+
+    // File Uploads
+    if (form.profilePic.files[0]) formData.append('profilePic', form.profilePic.files[0]);
+    if (form.idProof.files[0]) formData.append('idProof', form.idProof.files[0]);
+    if (form.sscCertificate.files[0]) formData.append('sscCertificate', form.sscCertificate.files[0]);
+    if (form.interCertificate.files[0]) formData.append('interCertificate', form.interCertificate.files[0]);
+    if (form.degreeCertificate.files[0]) formData.append('degreeCertificate', form.degreeCertificate.files[0]);
+    if (form.experienceLetter.files[0]) formData.append('experienceLetter', form.experienceLetter.files[0]);
+
+    try {
+      const response = await fetch('http://localhost:3000/api/employees', {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.json();
+      console.log('Response status:', response.status);
+      console.log('Response body:', result);
+      if (response.status !== 201) {
+        throw new Error(result.error || `Failed to submit form data (status: ${response.status})`);
+      }
+      alert('Form submitted successfully!');
+      form.reset();
+      document.getElementById('jobStartDate').value = today;
+      form.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert(`Error submitting form: ${error.message}`);
+    }
+  });
+
+  form.addEventListener('reset', function() {
+    form.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+    document.getElementById('jobStartDate').value = today;
+  });
+});
+</script>
 </body>
 </html>
