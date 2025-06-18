@@ -664,7 +664,7 @@ h3 {
                         <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                         </svg>
-                        <input type="text" id="searchInput" placeholder="Search by name, ID, department..." oninput="filterTable()">
+                        <input type="text" id="searchInput" placeholder="Search by name, department..." oninput="filterTable()">
                     </div>
                     
                     <div class="filter-group">
@@ -679,21 +679,12 @@ h3 {
                             <option value="">All Departments</option>
                             <!-- Options will be populated by JavaScript -->
                         </select>
-                        
-                        <!-- <button class="reset-btn" onclick="resetFilters()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 5px;">
-                                <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                            </svg>
-                            Reset
-                        </button> -->
                     </div>
                 </div>
         <table id="onboarding-table">
             <thead>
                 <tr>
                     <th>Employee</th>
-                    <th>Employee ID</th>
                     <th>Department</th>
                     <th>Job Role</th>
                     <th>Start Date</th>
@@ -833,10 +824,6 @@ function displayRecords(records) {
         employeeCell.appendChild(initialDiv);
         employeeCell.appendChild(detailsDiv);
 
-        const empIdCell = document.createElement('td');
-        empIdCell.setAttribute('data-label', 'Employee ID');
-        empIdCell.textContent = record.emp_id || 'N/A';
-
         const deptCell = document.createElement('td');
         deptCell.setAttribute('data-label', 'Department');
         deptCell.textContent = record.department || 'N/A';
@@ -867,7 +854,6 @@ function displayRecords(records) {
         actionCell.appendChild(viewButton);
 
         row.appendChild(employeeCell);
-        row.appendChild(empIdCell);
         row.appendChild(deptCell);
         row.appendChild(jobRoleCell);
         row.appendChild(startDateCell);
@@ -928,7 +914,6 @@ function filterTable() {
     const filteredRecords = allRecords.filter(record => {
         const matchesSearch = 
             (record.full_name && record.full_name.toLowerCase().includes(searchTerm)) ||
-            (record.emp_id && record.emp_id.toLowerCase().includes(searchTerm)) ||
             (record.department && record.department.toLowerCase().includes(searchTerm)) ||
             (record.job_role && record.job_role.toLowerCase().includes(searchTerm));
         
@@ -958,10 +943,6 @@ async function viewRecord(id) {
         <p>
           <strong><i class="fas fa-user detail-icon"></i> Full Name</strong>
           <span class="detail-value">${record.full_name || 'N/A'}</span>
-        </p>
-        <p>
-          <strong><i class="fas fa-id-badge detail-icon"></i> Employee ID</strong>
-          <span class="detail-value">${record.emp_id || 'N/A'}</span>
         </p>
         <p>
           <strong><i class="fas fa-envelope detail-icon"></i> Email</strong>
@@ -1238,6 +1219,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-   
 </body>
 </html>

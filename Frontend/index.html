@@ -444,13 +444,6 @@
                         <span class="error-message" id="fullName-error"></span>
                     </div>
                     <div class="form-group">
-                        <label for="empId">Employee ID</label>
-                        <input type="text" id="empId" name="empId" class="form-control" required maxlength="7"
-                            pattern="^ATS0(?!000)\d{3}$" title="Employee ID must start with ATS followed by 4 digits (e.g., ATS0987)"
-                            oninput="this.value = this.value.toUpperCase()">
-                        <span class="error-message" id="empId-error"></span>
-                    </div>
-                    <div class="form-group">
                         <label for="email">Email Address</label>
                         <input type="email" id="email" name="email" class="form-control" required
                             pattern="^[a-zA-Z0-9]{3,}([._-]?[a-zA-Z0-9]+)*@[a-zA-Z]+([.-]?[a-zA-Z]+)*\.(com|org|net|edu|gov|co\.[a-z]{2}|[a-z]{2,3})$"
@@ -1002,7 +995,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const getDateValue = (value) => value && value.trim() !== '' ? value : null;
 
     // Basic Information
-    formData.append('empId', form.empId.value);
     formData.append('fullName', form.fullName.value);
     formData.append('email', form.email.value);
     formData.append('phone', form.phone.value);

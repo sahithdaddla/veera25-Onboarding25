@@ -100,7 +100,6 @@
             word-spacing: 0.3em; 
         }
 
-
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -121,48 +120,36 @@
             background: linear-gradient(135deg, var(--secondary-color), #2980b9);
             color: white;
             padding: 20px;
-            text-align: center;
-        }
-
-        .profile-circle {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border-radius: 50%;
-            margin: 0 auto 15px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: var(--primary-color);
-            font-weight: bold;
-            animation: pulse 2s infinite;
+            gap: 15px;
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-            }
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-            }
+        .profile-pic {
+            width:90px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        .card-header .info-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .card-header h2 {
-            margin: 10px 0 5px;
             font-size: 1.5em;
-            word-spacing: 0.3em; 
+            margin: 0;
+            word-spacing: 0.3em;
         }
 
-        .employee-id {
+        .emp-id {
             font-size: 0.9em;
             opacity: 0.9;
+            margin-top: 5px;
         }
 
         .card-body {
@@ -170,16 +157,16 @@
         }
 
         .info-group {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr; 
-    margin-bottom: 12px;
-}
-.info-group label,
-.info-group span {
-    word-break: break-word;
-    word-spacing: 0.10em; 
-}
+            display: grid;
+            grid-template-columns: 1fr 1.2fr; 
+            margin-bottom: 12px;
+        }
 
+        .info-group label,
+        .info-group span {
+            word-break: break-word;
+            word-spacing: 0.10em; 
+        }
 
         .info-group label {
             color: #7f8c8d;
@@ -253,23 +240,27 @@
         .modal-header {
             background: linear-gradient(135deg, var(--secondary-color), #2980b9);
             color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 15px 15px 0 0;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             position: relative;
         }
 
-        .modal-header .profile-circle {
-            width: 100px;
-            height: 100px;
-            font-size: 32px;
-            color: rgb(0, 0, 0);
-            margin-bottom: 20px;
+        .modal-header .profile-pic {
+            width: 80px;
+            height: 80px;
         }
 
         .modal-header h2 {
-            font-size: 2em;
-            margin: 10px 0 5px;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        .modal-header .emp-id {
+            font-size: 1em;
+            margin-top: 5px;
         }
 
         .close-modal {
@@ -380,13 +371,14 @@
             }
 
             .modal-header {
-                padding: 20px;
+                padding: 15px;
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .modal-header .profile-circle {
-                width: 80px;
-                height: 80px;
-                font-size: 24px;
+            .modal-header .profile-pic {
+                width: 60px;
+                height: 60px;
             }
 
             .modal-body {
@@ -395,6 +387,15 @@
 
             .details-section {
                 padding: 15px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header .profile-pic {
+                margin-bottom: 10px;
             }
         }
 
@@ -414,10 +415,10 @@
     <div class="container">
         <header>
             <h1>HR Staff Management</h1>
-            <p style="color: #333; text-align: center;">"Individuals play the game, but teams beat the odds."</p>
+            <p style="color: #fffcfc; text-align: center;">"Individuals play the game, but teams beat the odds."</p>
         </header>
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search employees by name, department, or ID...">
+            <input type="text" id="searchInput" placeholder="Search employees by name, department, or employee ID...">
         </div>
         <main class="employee-grid" id="dataContainer">
             <!-- Employee cards will be added here dynamically -->
@@ -427,275 +428,277 @@
     <div id="modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="profile-circle" id="modalProfileCircle">?</div>
-                <h2 id="modalHeader">Employee Name</h2>
+                <img id="modalProfilePic" class="profile-pic" src="" alt="Profile Picture" onerror="this.src='https://via.placeholder.com/50'; this.alt='No Profile Picture'">
+                <div class="info-container">
+                    <h2 id="modalHeader">Employee Name</h2>
+                    <span id="modalEmpId" class="emp-id"></span>
+                </div>
                 <div class="close-modal" onclick="hideModal()">×</div>
             </div>
-            <div class="modal-body" id="modalBody">
-            </div>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
-<script>
-    function formatDate(dateString) {
-  if (!dateString) return 'N/A';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-}
+    <script>
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
-async function fetchActiveEmployees() {
-  try {
-    const response = await fetch('http://localhost:3000/api/employees/active');
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-    }
-    const responseData = await response.json();
-    console.log('Fetched employees:', responseData);
-    renderEmployeeCards(responseData.data);
-  } catch (error) {
-    console.error('Error fetching active employees:', error);
-    const container = document.getElementById('dataContainer');
-    container.innerHTML = `<p style="color: red; text-align: center;">Error loading employees: ${error.message}</p>`;
-  }
-}
+        async function fetchActiveEmployees() {
+            try {
+                const response = await fetch('http://localhost:3000/api/employees/active');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+                const responseData = await response.json();
+                console.log('Fetched employees:', responseData);
+                renderEmployeeCards(responseData.data);
+            } catch (error) {
+                console.error('Error fetching active employees:', error);
+                const container = document.getElementById('dataContainer');
+                container.innerHTML = `<p style="color: red; text-align: center;">Error loading employees: ${error.message}</p>`;
+            }
+        }
 
-function renderEmployeeCards(employees) {
-  const dataContainer = document.getElementById('dataContainer');
-  dataContainer.innerHTML = '';
-  
-  employees.forEach(employee => {
-    const card = document.createElement('div');
-    card.className = 'employee-card';
-    card.dataset.employeeId = employee.emp_id;
-    const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
-    
-    card.innerHTML = `
-      <div class="card-header">
-        <div class="profile-circle">${initials}</div>
-        <h2>${employee.full_name}</h2>
-        <span class="employee-id">${employee.emp_id}</span>
-      </div>
-      <div class="card-body">
-        <div class="info-group">
-          <label>Department:</label>
-          <span>${employee.department || 'N/A'}</span>
-        </div>
-        <div class="info-group">
-          <label>Position:</label>
-          <span>${employee.job_role || 'N/A'}</span>
-        </div>
-        <div class="info-group">
-          <label>Join Date:</label>
-          <span>${formatDate(employee.job_start_date)}</span>
-        </div>
-        <div class="info-group">
-          <label>Status:</label>
-          <span>${employee.status || 'N/A'}</span>
-        </div>
-      </div>
-      <div class="card-footer">
-        <button class="btn-view" onclick="showEmployeeDetails('${employee.id}')">View Details</button>
-      </div>
-    `;
-    
-    dataContainer.appendChild(card);
-  });
-}
+        function renderEmployeeCards(employees) {
+            const dataContainer = document.getElementById('dataContainer');
+            dataContainer.innerHTML = '';
+            
+            employees.forEach(employee => {
+                const card = document.createElement('div');
+                card.className = 'employee-card';
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <img class="profile-pic" src="http://localhost:3000/api/onboarding/${employee.id}/file/profilePic" alt="Profile Picture" onerror="this.src='https://via.placeholder.com/50'; this.alt='No Profile Picture'">
+                        <div class="info-container">
+                            <h2>${employee.full_name}</h2>
+                            <span class="emp-id">${employee.emp_id || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-group">
+                            <label>Department:</label>
+                            <span>${employee.department || 'N/A'}</span>
+                        </div>
+                        <div class="info-group">
+                            <label>Position:</label>
+                            <span>${employee.job_role || 'N/A'}</span>
+                        </div>
+                        <div class="info-group">
+                            <label>Join Date:</label>
+                            <span>${formatDate(employee.job_start_date)}</span>
+                        </div>
+                        <div class="info-group">
+                            <label>Status:</label>
+                            <span>${employee.status || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-view" onclick="showEmployeeDetails('${employee.id}')">View Details</button>
+                    </div>
+                `;
+                
+                dataContainer.appendChild(card);
+            });
+        }
 
-async function showEmployeeDetails(employeeId) {
-  try {
-    const response = await fetch(`http://localhost:3000/api/onboarding/${employeeId}`);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-    }
-    const employee = await response.json();
-    const modal = document.getElementById('modal');
-    const initials = employee.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+        async function showEmployeeDetails(employeeId) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/onboarding/${employeeId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+                const employee = await response.json();
+                const modal = document.getElementById('modal');
 
-    document.getElementById('modalHeader').textContent = employee.full_name;
-    document.getElementById('modalProfileCircle').textContent = initials;
+                document.getElementById('modalHeader').textContent = employee.full_name;
+                document.getElementById('modalEmpId').textContent = employee.emp_id || 'N/A';
+                document.getElementById('modalProfilePic').src = `http://localhost:3000/api/onboarding/${employee.id}/file/profilePic`;
 
-    const modalBody = document.getElementById('modalBody');
-    modalBody.innerHTML = `
-      <div class="details-section">
-        <h3>Basic Information</h3>
-        <div class="details-grid">
-          <div class="detail-item">
-            <label>Employee ID:</label>
-            <span>${employee.emp_id || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Department:</label>
-            <span>${employee.department || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Position:</label>
-            <span>${employee.job_role || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Join Date:</label>
-            <span>${formatDate(employee.job_start_date)}</span>
-          </div>
-          <div class="detail-item">
-            <label>Status:</label>
-            <span>${employee.status || 'N/A'}</span>
-          </div>
-        </div>
-      </div>
-      <div class="details-section">
-        <h3>Contact Details</h3>
-        <div class="details-grid">
-          <div class="detail-item">
-            <label>Email:</label>
-            <span>${employee.email || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Date of Birth:</label>
-            <span>${formatDate(employee.dob)}</span>
-          </div>
-          <div class="detail-item">
-            <label>Phone:</label>
-            <span>${employee.phone || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Address:</label>
-            <span>${employee.street_address || ''}, ${employee.city || ''}, ${employee.state || ''}, ${employee.zip_code || ''}</span>
-          </div>
-          <div class="detail-item">
-            <label>City:</label>
-            <span>${employee.city || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Country:</label>
-            <span>N/A</span>
-          </div>
-        </div>
-      </div>
-      <div class="details-section">
-        <h3>Education Details</h3>
-        <div class="details-grid">
-          <div class="detail-item">
-            <label>SSC Institution:</label>
-            <span>${employee.ssc_institution || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>SSC Year:</label>
-            <span>${employee.ssc_year || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Intermediate Institution:</label>
-            <span>${employee.inter_institution || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Intermediate Year:</label>
-            <span>${employee.inter_year || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Highest Degree:</label>
-            <span>${employee.degree || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Institution:</label>
-            <span>${employee.institution || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Graduation Year:</label>
-            <span>${employee.graduation_year || 'N/A'}</span>
-          </div>
-        </div>
-      </div>
-      <div class="details-section">
-        <h3>Banking Details</h3>
-        <div class="details-grid">
-          <div class="detail-item">
-            <label>Bank Name:</label>
-            <span>${employee.bank_name || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Mobile Number:</label>
-            <span>${employee.mobile_number || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Account Number:</label>
-            <span>${employee.account_number || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>IFSC Number:</label>
-            <span>${employee.ifsc_number || 'N/A'}</span>
-          </div>
-        </div>
-      </div>
-      <div class="details-section">
-        <h3>Emergency Contact</h3>
-        <div class="details-grid">
-          <div class="detail-item">
-            <label>Name:</label>
-            <span>${employee.emergency_contact_name || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Relationship:</label>
-            <span>${employee.emergency_contact_relationship || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Phone:</label>
-            <span>${employee.emergency_contact_phone || 'N/A'}</span>
-          </div>
-          <div class="detail-item">
-            <label>Address:</label>
-            <span>${employee.emergency_contact_address || 'N/A'}</span>
-          </div>
-        </div>
-      </div>
-    `;
-    modal.style.display = 'block';
-    setTimeout(() => {
-      modalBody.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
-  } catch (error) {
-    console.error('Error fetching employee details:', error);
-    alert(`Error loading employee details: ${error.message}`);
-  }
-}
+                const modalBody = document.getElementById('modalBody');
+                modalBody.innerHTML = `
+                    <div class="details-section">
+                        <h3>Basic Information</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Employee ID:</label>
+                                <span>${employee.emp_id || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Department:</label>
+                                <span>${employee.department || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Position:</label>
+                                <span>${employee.job_role || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Join Date:</label>
+                                <span>${formatDate(employee.job_start_date)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Status:</label>
+                                <span>${employee.status || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Contact Details</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Email:</label>
+                                <span>${employee.email || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Date of Birth:</label>
+                                <span>${formatDate(employee.dob)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Phone:</label>
+                                <span>${employee.phone || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Address:</label>
+                                <span>${employee.street_address || ''}, ${employee.city || ''}, ${employee.state || ''}, ${employee.zip_code || ''}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>City:</label>
+                                <span>${employee.city || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Country:</label>
+                                <span>N/A</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Education Details</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>SSC Institution:</label>
+                                <span>${employee.ssc_institution || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>SSC Year:</label>
+                                <span>${employee.ssc_year || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Intermediate Institution:</label>
+                                <span>${employee.inter_institution || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Intermediate Year:</label>
+                                <span>${employee.inter_year || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Highest Degree:</label>
+                                <span>${employee.degree || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Institution:</label>
+                                <span>${employee.institution || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Graduation Year:</label>
+                                <span>${employee.graduation_year || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Banking Details</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Bank Name:</label>
+                                <span>${employee.bank_name || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Mobile Number:</label>
+                                <span>${employee.mobile_number || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Account Number:</label>
+                                <span>${employee.account_number || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>IFSC Number:</label>
+                                <span>${employee.ifsc_number || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>Emergency Contact</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <label>Name:</label>
+                                <span>${employee.emergency_contact_name || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Relationship:</label>
+                                <span>${employee.emergency_contact_relationship || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Phone:</label>
+                                <span>${employee.emergency_contact_phone || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Address:</label>
+                                <span>${employee.emergency_contact_address || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            } catch (error) {
+                console.error('Error fetching employee details:', error);
+                alert(`Error loading employee details: ${error.message}`);
+            }
+        }
 
-function hideModal() {
-  document.getElementById('modal').style.display = 'none';
-}
+        function hideModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
 
-document.addEventListener('DOMContentLoaded', function() {
-  fetchActiveEmployees();
-  
-  document.getElementById('searchInput').addEventListener('input', async (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    try {
-      const response = await fetch('http://localhost:3000/api/employees/active');
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
-      }
-      const responseData = await response.json();
-      const employees = responseData.data;
-      const filteredEmployees = employees.filter(employee => {
-        const searchString = `${employee.full_name} ${employee.emp_id} ${employee.department || ''}`.toLowerCase();
-        return searchString.includes(searchTerm);
-      });
-      renderEmployeeCards(filteredEmployees);
-    } catch (error) {
-      console.error('Error searching employees:', error);
-      const container = document.getElementById('dataContainer');
-      container.innerHTML = `<p style="color: red; text-align: center;">Error searching employees: ${error.message}</p>`;
-    }
-  });
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchActiveEmployees();
+            
+            document.getElementById('searchInput').addEventListener('input', async (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                try {
+                    const response = await fetch('http://localhost:3000/api/employees/active');
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                    }
+                    const responseData = await response.json();
+                    const employees = responseData.data;
+                    const filteredEmployees = employees.filter(employee => {
+                        const searchString = `${employee.full_name} ${employee.department || ''} ${employee.emp_id || ''}`.toLowerCase();
+                        return searchString.includes(searchTerm);
+                    });
+                    renderEmployeeCards(filteredEmployees);
+                } catch (error) {
+                    console.error('Error searching employees:', error);
+                    const container = document.getElementById('dataContainer');
+                    container.innerHTML = `<p style="color: red; text-align: center;">Error searching employees: ${error.message}</p>`;
+                }
+            });
 
-  window.addEventListener('click', (event) => {
-    const modal = document.getElementById('modal');
-    if (event.target === modal) {
-      modal.style.display = 'none';
-    }
-  });
-});
-</script>
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('modal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
