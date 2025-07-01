@@ -869,7 +869,7 @@ async function loadData() {
     noDataMessage.style.display = 'flex';
     noDataMessage.textContent = 'Loading...';
     try {
-        const response = await fetch('http://localhost:3000/api/onboarding');
+        const response = await fetch('http://51.20.6.123:3077/api/onboarding');
         console.log('Response status:', response.status);
         if (!response.ok) {
             const errorText = await response.text();
@@ -929,7 +929,7 @@ function filterTable() {
 async function viewRecord(id) {
   currentIndex = id;
   try {
-    const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
+    const response = await fetch(`http://51.20.6.123:3077/api/onboarding/${id}`);
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText}`);
@@ -1122,7 +1122,7 @@ async function viewRecord(id) {
 
 async function viewFile(id, field) {
     try {
-        const response = await fetch(`http://localhost:3000/api/onboarding/${id}`);
+        const response = await fetch(`http://51.20.6.123:3077/api/onboarding/${id}`);
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${await response.text()}`);
         }
@@ -1138,7 +1138,7 @@ async function viewFile(id, field) {
         if (!fileName) {
             throw new Error('No file available to view.');
         }
-        const fileUrl = `http://localhost:3000/api/onboarding/${id}/file/${field}`;
+        const fileUrl = `http://51.20.6.123:3077/api/onboarding/${id}/file/${field}`;
         const viewModal = document.getElementById('file-view-modal');
         const viewBody = document.getElementById('file-view-body');
         const viewTitle = document.getElementById('file-view-title');
@@ -1161,13 +1161,13 @@ async function viewFile(id, field) {
 }
 
 function downloadFile(id, field) {
-    window.location.href = `http://localhost:3000/api/onboarding/${id}/file/${field}`;
+    window.location.href = `http://51.20.6.123:3077/api/onboarding/${id}/file/${field}`;
 }
 
 async function acceptRecord() {
     if (currentIndex === -1) return;
     try {
-        const response = await fetch(`http://localhost:3000/api/onboarding/${currentIndex}`, {
+        const response = await fetch(`http://51.20.6.123:3077/api/onboarding/${currentIndex}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'Active' })
@@ -1188,7 +1188,7 @@ async function acceptRecord() {
 async function rejectRecord() {
     if (currentIndex === -1) return;
     try {
-        const response = await fetch(`http://localhost:3000/api/onboarding/${currentIndex}`, {
+        const response = await fetch(`http://51.20.6.123:3077/api/onboarding/${currentIndex}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'Rejected' })

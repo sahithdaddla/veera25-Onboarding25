@@ -452,7 +452,7 @@
 
         async function fetchActiveEmployees() {
             try {
-                const response = await fetch('http://localhost:3000/api/employees/active');
+                const response = await fetch('http://51.20.6.123:3077/api/employees/active');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${await response.text()}`);
                 }
@@ -476,7 +476,7 @@
                 
                 card.innerHTML = `
                     <div class="card-header">
-                        <img class="profile-pic" src="http://localhost:3000/api/onboarding/${employee.id}/file/profilePic" alt="Profile Picture" onerror="this.src='https://via.placeholder.com/50'; this.alt='No Profile Picture'">
+                        <img class="profile-pic" src="http://51.20.6.123:3077/api/onboarding/${employee.id}/file/profilePic" alt="Profile Picture" onerror="this.src='https://via.placeholder.com/50'; this.alt='No Profile Picture'">
                         <div class="info-container">
                             <h2>${employee.full_name}</h2>
                             <span class="emp-id">${employee.emp_id || 'N/A'}</span>
@@ -511,7 +511,7 @@
 
         async function showEmployeeDetails(employeeId) {
             try {
-                const response = await fetch(`http://localhost:3000/api/onboarding/${employeeId}`);
+                const response = await fetch(`http://51.20.6.123:3077/api/onboarding/${employeeId}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${await response.text()}`);
                 }
@@ -520,7 +520,7 @@
 
                 document.getElementById('modalHeader').textContent = employee.full_name;
                 document.getElementById('modalEmpId').textContent = employee.emp_id || 'N/A';
-                document.getElementById('modalProfilePic').src = `http://localhost:3000/api/onboarding/${employee.id}/file/profilePic`;
+                document.getElementById('modalProfilePic').src = `http://51.20.6.123:3077/api/onboarding/${employee.id}/file/profilePic`;
 
                 const modalBody = document.getElementById('modalBody');
                 modalBody.innerHTML = `
@@ -670,7 +670,7 @@
             document.getElementById('searchInput').addEventListener('input', async (e) => {
                 const searchTerm = e.target.value.toLowerCase();
                 try {
-                    const response = await fetch('http://localhost:3000/api/employees/active');
+                    const response = await fetch('http://51.20.6.123:3077/api/employees/active');
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${await response.text()}`);
                     }

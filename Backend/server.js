@@ -12,9 +12,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
 
 const pool = new Pool({
   user: 'postgres',
-  host: 'localhost',
+  host: 'postgres',
   database: 'employee_db',
-  password: 'Veera@0134',
+  password: 'admin123',
   port: 5432,
 });
 
@@ -421,7 +421,7 @@ function getMimeType(fileName) {
   return mimeTypes[ext] || 'application/octet-stream';
 }
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3077;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://51.20.6.123:${PORT}`);
 });
