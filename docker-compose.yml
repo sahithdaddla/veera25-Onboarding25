@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: onboarding255-db
+    ports:
+      - "5504:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: employee_db
+    volumes:
+      - pgdata25:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+
+  backend:
+    build: ./Backend
+    container_name: onboarding255-backend
+    ports:
+      - "3077:3077"
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./Frontend
+    container_name: onboarding255-frontend
+    ports:
+      - "8270:80"
+    depends_on:
+      - backend
+
+  hr:
+    build: ./HR
+    container_name: onboarding255-hr
+    ports:
+      - "8271:80"
+    depends_on:
+      - backend
+
+  staff:
+    build: ./Staff
+    container_name: onboarding255-staff
+    ports:
+      - "8272:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata25:
+
